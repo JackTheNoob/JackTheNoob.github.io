@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言随着业务的不断迭代，一些较大的业务模块的ViewController变得极为臃肿，越来越难以维护。迫切的需要为ViewController瘦身了。Separate out UITableViewDataSource and UITableViewDelegate剥离DataSource和其他Protocols这个方法最早见于objc.io上。将UITableViewDatasource相关的代">
+<meta name="keywords" content="iOS,swift,react-native,javascript,微信开发,微信小程序,C,C语言,程序猿,博客,Lyddwn,码农">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Lighter your ViewController-打造轻量化ViewController">
+<meta property="og:url" content="http://jackthenoob.github.io/2019/05/21/Lighter-your-ViewController-打造轻量化ViewController/index.html">
+<meta property="og:site_name" content="Lyddwn">
+<meta property="og:description" content="前言随着业务的不断迭代，一些较大的业务模块的ViewController变得极为臃肿，越来越难以维护。迫切的需要为ViewController瘦身了。Separate out UITableViewDataSource and UITableViewDelegate剥离DataSource和其他Protocols这个方法最早见于objc.io上。将UITableViewDatasource相关的代">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-05-21T02:59:52.004Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Lighter your ViewController-打造轻量化ViewController">
+<meta name="twitter:description" content="前言随着业务的不断迭代，一些较大的业务模块的ViewController变得极为臃肿，越来越难以维护。迫切的需要为ViewController瘦身了。Separate out UITableViewDataSource and UITableViewDelegate剥离DataSource和其他Protocols这个方法最早见于objc.io上。将UITableViewDatasource相关的代">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://jackthenoob.github.io/2019/05/21/Lighter-your-ViewController-打造轻量化ViewController/">
+
+
+
+
+
+  <title>Lighter your ViewController-打造轻量化ViewController | Lyddwn</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Lyddwn</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">生活不只是代码</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>
+            
+            Commonweal 404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jackthenoob.github.io/2019/05/21/Lighter-your-ViewController-打造轻量化ViewController/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="垂杨小梳雨">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lyddwn">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Lighter your ViewController-打造轻量化ViewController</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-21T10:18:23+08:00">
+                2019-05-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h5 id="随着业务的不断迭代，一些较大的业务模块的ViewController变得极为臃肿，越来越难以维护。迫切的需要为ViewController瘦身了。"><a href="#随着业务的不断迭代，一些较大的业务模块的ViewController变得极为臃肿，越来越难以维护。迫切的需要为ViewController瘦身了。" class="headerlink" title="随着业务的不断迭代，一些较大的业务模块的ViewController变得极为臃肿，越来越难以维护。迫切的需要为ViewController瘦身了。"></a>随着业务的不断迭代，一些较大的业务模块的ViewController变得极为臃肿，越来越难以维护。迫切的需要为ViewController瘦身了。</h5><h3 id="Separate-out-UITableViewDataSource-and-UITableViewDelegate"><a href="#Separate-out-UITableViewDataSource-and-UITableViewDelegate" class="headerlink" title="Separate out UITableViewDataSource and UITableViewDelegate"></a>Separate out UITableViewDataSource and UITableViewDelegate</h3><h5 id="剥离DataSource和其他Protocols"><a href="#剥离DataSource和其他Protocols" class="headerlink" title="剥离DataSource和其他Protocols"></a>剥离DataSource和其他Protocols</h5><h5 id="这个方法最早见于objc-io上。将UITableViewDatasource相关的代码从ViewController中抽取并封装到其他类中。也相对提高重用性。"><a href="#这个方法最早见于objc-io上。将UITableViewDatasource相关的代码从ViewController中抽取并封装到其他类中。也相对提高重用性。" class="headerlink" title="这个方法最早见于objc.io上。将UITableViewDatasource相关的代码从ViewController中抽取并封装到其他类中。也相对提高重用性。"></a>这个方法最早见于objc.io上。将UITableViewDatasource相关的代码从ViewController中抽取并封装到其他类中。也相对提高重用性。</h5><h5 id="然后我在一个较大的业务中尝试使用了。感觉效果一般。"><a href="#然后我在一个较大的业务中尝试使用了。感觉效果一般。" class="headerlink" title="然后我在一个较大的业务中尝试使用了。感觉效果一般。"></a>然后我在一个较大的业务中尝试使用了。感觉效果一般。</h5><h5 id="示例工程中，有一个类PhotosViewController，里面原本有如下3个方法："><a href="#示例工程中，有一个类PhotosViewController，里面原本有如下3个方法：" class="headerlink" title="示例工程中，有一个类PhotosViewController，里面原本有如下3个方法："></a>示例工程中，有一个类PhotosViewController，里面原本有如下3个方法：</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pragma mark Pragma </span></span><br><span class="line">  </span><br><span class="line">- (Photo*)photoAtIndexPath:(NSIndexPath*)indexPath &#123; </span><br><span class="line">	<span class="built_in">return</span> photos[(NSUInteger)indexPath.row]; </span><br><span class="line">&#125; </span><br><span class="line">  </span><br><span class="line">- (NSInteger)tableView:(UITableView*)tableView </span><br><span class="line">numberOfRowsInSection:(NSInteger)section &#123; </span><br><span class="line">	<span class="built_in">return</span> photos.count; </span><br><span class="line">&#125; </span><br><span class="line">  </span><br><span class="line">- (UITableViewCell*)tableView:(UITableView*)tableView </span><br><span class="line">cellForRowAtIndexPath:(NSIndexPath*)indexPath &#123; </span><br><span class="line">	PhotoCell* cell = [tableView dequeueReusableCellWithIdentifier:PhotoCellIdentifier forIndexPath:indexPath]; </span><br><span class="line">	Photo* photo = [self photoAtIndexPath:indexPath]; </span><br><span class="line">	cell.label.text = photo.name; </span><br><span class="line">	<span class="built_in">return</span> cell; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="如下代码所示，这里通过一个block来配置UITableViewCell，当然，也可以使用delegate对UITableViewCell进行配置，这主要取决于开发者。"><a href="#如下代码所示，这里通过一个block来配置UITableViewCell，当然，也可以使用delegate对UITableViewCell进行配置，这主要取决于开发者。" class="headerlink" title="如下代码所示，这里通过一个block来配置UITableViewCell，当然，也可以使用delegate对UITableViewCell进行配置，这主要取决于开发者。"></a>如下代码所示，这里通过一个block来配置UITableViewCell，当然，也可以使用delegate对UITableViewCell进行配置，这主要取决于开发者。</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@implementation ArrayDataSource </span><br><span class="line">  </span><br><span class="line">- (id)itemAtIndexPath:(NSIndexPath*)indexPath &#123; </span><br><span class="line">	<span class="built_in">return</span> items[(NSUInteger)indexPath.row]; </span><br><span class="line">&#125; </span><br><span class="line">  </span><br><span class="line">- (NSInteger)tableView:(UITableView*)tableView </span><br><span class="line">numberOfRowsInSection:(NSInteger)section &#123; </span><br><span class="line">	<span class="built_in">return</span> items.count; </span><br><span class="line">&#125; </span><br><span class="line">  </span><br><span class="line">- (UITableViewCell*)tableView:(UITableView*)tableView </span><br><span class="line">cellForRowAtIndexPath:(NSIndexPath*)indexPath &#123; </span><br><span class="line">	id cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath]; </span><br><span class="line">	id item = [self itemAtIndexPath:indexPath]; </span><br><span class="line">	configureCellBlock(cell,item); </span><br><span class="line">	<span class="built_in">return</span> cell; </span><br><span class="line">&#125; </span><br><span class="line">  </span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
+<h5 id="可以把ViewController中的那3个方法移除掉，并创建自定义类的一个示例对象，然后将其设置为table-view的data-source，如下代码所示。"><a href="#可以把ViewController中的那3个方法移除掉，并创建自定义类的一个示例对象，然后将其设置为table-view的data-source，如下代码所示。" class="headerlink" title="可以把ViewController中的那3个方法移除掉，并创建自定义类的一个示例对象，然后将其设置为table view的data source，如下代码所示。"></a>可以把ViewController中的那3个方法移除掉，并创建自定义类的一个示例对象，然后将其设置为table view的data source，如下代码所示。</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">&#123;</span><br><span class="line">	void (^configureCell)(PhotoCell*, Photo*) = ^(PhotoCell* cell, Photo* photo) &#123; </span><br><span class="line">		cell.label.text = photo.name; </span><br><span class="line">	&#125;; </span><br><span class="line">	photosArrayDataSource = [[ArrayDataSource alloc] initWithItems:photos </span><br><span class="line">	cellIdentifier:PhotoCellIdentifier </span><br><span class="line">	configureCellBlock:configureCell]; </span><br><span class="line">	self.tableView.dataSource = photosArrayDataSource; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Category"><a href="#Category" class="headerlink" title="Category"></a>Category</h3><h5 id="大体思路：根据当前业务，将业务拆分为多个小模块。创建多个Category，每个Category处理自己业务模块逻辑。"><a href="#大体思路：根据当前业务，将业务拆分为多个小模块。创建多个Category，每个Category处理自己业务模块逻辑。" class="headerlink" title="大体思路：根据当前业务，将业务拆分为多个小模块。创建多个Category，每个Category处理自己业务模块逻辑。"></a>大体思路：根据当前业务，将业务拆分为多个小模块。创建多个Category，每个Category处理自己业务模块逻辑。</h5><h5 id="目录结构如下："><a href="#目录结构如下：" class="headerlink" title="目录结构如下："></a>目录结构如下：</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">OrderViewController.h</span><br><span class="line">OrderViewController.m</span><br><span class="line">OrderViewController+NetRequest.h</span><br><span class="line">OrderViewController+NetRequest.m</span><br><span class="line">OrderViewController+DataReport.h</span><br><span class="line">OrderViewController+DataReport.m</span><br><span class="line">OrderViewController+Address.h</span><br><span class="line">OrderViewController+Address.m</span><br><span class="line">OrderViewController+Shipping.h</span><br><span class="line">OrderViewController+Shipping.m</span><br><span class="line">OrderViewController+Invoice.h</span><br><span class="line">OrderViewController+Invoice.m</span><br><span class="line">OrderViewController+Wallet.h</span><br><span class="line">OrderViewController+Wallet.m</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<h5 id="其实还是比较简单有效的方法。如果要说弊端，那最多可能稍微拖慢App加载速度吧。"><a href="#其实还是比较简单有效的方法。如果要说弊端，那最多可能稍微拖慢App加载速度吧。" class="headerlink" title="其实还是比较简单有效的方法。如果要说弊端，那最多可能稍微拖慢App加载速度吧。"></a>其实还是比较简单有效的方法。如果要说弊端，那最多可能稍微拖慢App加载速度吧。</h5><h3 id="模块化调用"><a href="#模块化调用" class="headerlink" title="模块化调用"></a>模块化调用</h3><h5 id="将一些业务逻辑处理封装到其他类中，由ViewController去调用这些类。即：不要在ViewController中做一些复杂的逻辑处理，由其他类代理处理"><a href="#将一些业务逻辑处理封装到其他类中，由ViewController去调用这些类。即：不要在ViewController中做一些复杂的逻辑处理，由其他类代理处理" class="headerlink" title="将一些业务逻辑处理封装到其他类中，由ViewController去调用这些类。即：不要在ViewController中做一些复杂的逻辑处理，由其他类代理处理"></a>将一些业务逻辑处理封装到其他类中，由ViewController去调用这些类。即：不要在ViewController中做一些复杂的逻辑处理，由其他类代理处理</h5><h4 id="比如："><a href="#比如：" class="headerlink" title="比如："></a>比如：</h4><ul>
+<li>业务Model自己逻辑自己处理。VC只负责调用。</li>
+<li>网络请求、数据处理服务创建相应Manager类处理。</li>
+<li>复杂的View结构通过添加子ViewController实现。</li>
+<li>使用KVO。比如你创建一个列表，数据需要通过网络请求刷新[webservice fetchNewData],通过KVO可以实现多个网络请求的自动刷新。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h5 id="这些只是可供大家参考的方法，目的是为了编写方便维护的、可读性高的代码。"><a href="#这些只是可供大家参考的方法，目的是为了编写方便维护的、可读性高的代码。" class="headerlink" title="这些只是可供大家参考的方法，目的是为了编写方便维护的、可读性高的代码。"></a>这些只是可供大家参考的方法，目的是为了编写方便维护的、可读性高的代码。</h5><h5 id="写于2015-01-19"><a href="#写于2015-01-19" class="headerlink" title="写于2015-01-19"></a>写于2015-01-19</h5>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/20/iOS内存管理-ARC/" rel="next" title="iOS内存管理-ARC">
+                <i class="fa fa-chevron-left"></i> iOS内存管理-ARC
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">垂杨小梳雨</p>
+              <p class="site-description motion-element" itemprop="description">None</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">tags</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#随着业务的不断迭代，一些较大的业务模块的ViewController变得极为臃肿，越来越难以维护。迫切的需要为ViewController瘦身了。"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">随着业务的不断迭代，一些较大的业务模块的ViewController变得极为臃肿，越来越难以维护。迫切的需要为ViewController瘦身了。</span></a></li></ol></li></ol><li class="nav-item nav-level-3"><a class="nav-link" href="#Separate-out-UITableViewDataSource-and-UITableViewDelegate"><span class="nav-number">1.1.</span> <span class="nav-text">Separate out UITableViewDataSource and UITableViewDelegate</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#剥离DataSource和其他Protocols"><span class="nav-number">1.1.0.1.</span> <span class="nav-text">剥离DataSource和其他Protocols</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#这个方法最早见于objc-io上。将UITableViewDatasource相关的代码从ViewController中抽取并封装到其他类中。也相对提高重用性。"><span class="nav-number">1.1.0.2.</span> <span class="nav-text">这个方法最早见于objc.io上。将UITableViewDatasource相关的代码从ViewController中抽取并封装到其他类中。也相对提高重用性。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#然后我在一个较大的业务中尝试使用了。感觉效果一般。"><span class="nav-number">1.1.0.3.</span> <span class="nav-text">然后我在一个较大的业务中尝试使用了。感觉效果一般。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#示例工程中，有一个类PhotosViewController，里面原本有如下3个方法："><span class="nav-number">1.1.0.4.</span> <span class="nav-text">示例工程中，有一个类PhotosViewController，里面原本有如下3个方法：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#如下代码所示，这里通过一个block来配置UITableViewCell，当然，也可以使用delegate对UITableViewCell进行配置，这主要取决于开发者。"><span class="nav-number">1.1.0.5.</span> <span class="nav-text">如下代码所示，这里通过一个block来配置UITableViewCell，当然，也可以使用delegate对UITableViewCell进行配置，这主要取决于开发者。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#可以把ViewController中的那3个方法移除掉，并创建自定义类的一个示例对象，然后将其设置为table-view的data-source，如下代码所示。"><span class="nav-number">1.1.0.6.</span> <span class="nav-text">可以把ViewController中的那3个方法移除掉，并创建自定义类的一个示例对象，然后将其设置为table view的data source，如下代码所示。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Category"><span class="nav-number">1.2.</span> <span class="nav-text">Category</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#大体思路：根据当前业务，将业务拆分为多个小模块。创建多个Category，每个Category处理自己业务模块逻辑。"><span class="nav-number">1.2.0.1.</span> <span class="nav-text">大体思路：根据当前业务，将业务拆分为多个小模块。创建多个Category，每个Category处理自己业务模块逻辑。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#目录结构如下："><span class="nav-number">1.2.0.2.</span> <span class="nav-text">目录结构如下：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#其实还是比较简单有效的方法。如果要说弊端，那最多可能稍微拖慢App加载速度吧。"><span class="nav-number">1.2.0.3.</span> <span class="nav-text">其实还是比较简单有效的方法。如果要说弊端，那最多可能稍微拖慢App加载速度吧。</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模块化调用"><span class="nav-number">1.3.</span> <span class="nav-text">模块化调用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#将一些业务逻辑处理封装到其他类中，由ViewController去调用这些类。即：不要在ViewController中做一些复杂的逻辑处理，由其他类代理处理"><span class="nav-number">1.3.0.1.</span> <span class="nav-text">将一些业务逻辑处理封装到其他类中，由ViewController去调用这些类。即：不要在ViewController中做一些复杂的逻辑处理，由其他类代理处理</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#比如："><span class="nav-number">1.3.1.</span> <span class="nav-text">比如：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#这些只是可供大家参考的方法，目的是为了编写方便维护的、可读性高的代码。"><span class="nav-number">2.0.0.1.</span> <span class="nav-text">这些只是可供大家参考的方法，目的是为了编写方便维护的、可读性高的代码。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#写于2015-01-19"><span class="nav-number">2.0.0.2.</span> <span class="nav-text">写于2015-01-19</span></a></li></ol></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">垂杨小梳雨</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
