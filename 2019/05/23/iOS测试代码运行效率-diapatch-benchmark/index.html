@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="前言在日常开发过程中，我们经常会遇到这样的疑问：  这段代码相对效率是多少？方法A与方法B哪个更快？  打时间戳逻辑很简单：代码运行前记录一次时间，运行后记录一次，然后比较时间差即可。 1234567891011121314CFTimeInterval startTime = CACurrentMediaTime();//your code here...CFTimeInterval endTim">
+<meta name="description" content="前言在日常开发过程中，我们经常会遇到这样的疑问：  这段代码相对效率是多少？方法A与方法B哪个更快？  打时间戳逻辑很简单：代码运行前记录一次时间，运行后记录一次，然后比较时间差即可。 1234567891011121314151617CFTimeInterval startTime = CACurrentMediaTime();//your code here...CFTimeInterval">
 <meta name="keywords" content="iOS,dipatch_benchmark,代码效率">
 <meta property="og:type" content="article">
 <meta property="og:title" content="iOS测试代码运行效率-diapatch_benchmark">
 <meta property="og:url" content="http://jackthenoob.github.io/2019/05/23/iOS测试代码运行效率-diapatch-benchmark/index.html">
 <meta property="og:site_name" content="Lyddwn">
-<meta property="og:description" content="前言在日常开发过程中，我们经常会遇到这样的疑问：  这段代码相对效率是多少？方法A与方法B哪个更快？  打时间戳逻辑很简单：代码运行前记录一次时间，运行后记录一次，然后比较时间差即可。 1234567891011121314CFTimeInterval startTime = CACurrentMediaTime();//your code here...CFTimeInterval endTim">
+<meta property="og:description" content="前言在日常开发过程中，我们经常会遇到这样的疑问：  这段代码相对效率是多少？方法A与方法B哪个更快？  打时间戳逻辑很简单：代码运行前记录一次时间，运行后记录一次，然后比较时间差即可。 1234567891011121314151617CFTimeInterval startTime = CACurrentMediaTime();//your code here...CFTimeInterval">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-05-23T06:28:16.669Z">
+<meta property="og:updated_time" content="2019-05-23T06:31:32.799Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS测试代码运行效率-diapatch_benchmark">
-<meta name="twitter:description" content="前言在日常开发过程中，我们经常会遇到这样的疑问：  这段代码相对效率是多少？方法A与方法B哪个更快？  打时间戳逻辑很简单：代码运行前记录一次时间，运行后记录一次，然后比较时间差即可。 1234567891011121314CFTimeInterval startTime = CACurrentMediaTime();//your code here...CFTimeInterval endTim">
+<meta name="twitter:description" content="前言在日常开发过程中，我们经常会遇到这样的疑问：  这段代码相对效率是多少？方法A与方法B哪个更快？  打时间戳逻辑很简单：代码运行前记录一次时间，运行后记录一次，然后比较时间差即可。 1234567891011121314151617CFTimeInterval startTime = CACurrentMediaTime();//your code here...CFTimeInterval">
 
 
 
@@ -357,7 +357,7 @@
 <p>这段代码相对效率是多少？方法A与方法B哪个更快？</p>
 </blockquote>
 <h4 id="打时间戳"><a href="#打时间戳" class="headerlink" title="打时间戳"></a>打时间戳</h4><p>逻辑很简单：代码运行前记录一次时间，运行后记录一次，然后比较时间差即可。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">CFTimeInterval startTime = CACurrentMediaTime();</span><br><span class="line"></span><br><span class="line">//your code here</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">CFTimeInterval endTime = CACurrentMediaTime();</span><br><span class="line">NSLog(@<span class="string">"Total Runtime: %g s"</span>, endTime - startTime);</span><br><span class="line">``` </span><br><span class="line"></span><br><span class="line"><span class="comment">#### diapatch_benchmark</span></span><br><span class="line">dispatch_benchmark 是 libdispatch (Grand Central Dispatch) 的一部分。但这个方法并没有被公开声明，所以你必须要自己声明：</span><br><span class="line"></span><br><span class="line">```bash</span><br><span class="line">extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">CFTimeInterval startTime = CACurrentMediaTime();</span><br><span class="line"></span><br><span class="line">//your code here</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">CFTimeInterval endTime = CACurrentMediaTime();</span><br><span class="line">NSLog(@<span class="string">"Total Runtime: %g s"</span>, endTime - startTime);</span><br><span class="line">``` </span><br><span class="line">****</span><br><span class="line"></span><br><span class="line"><span class="comment">#### diapatch_benchmark</span></span><br><span class="line"></span><br><span class="line">dispatch_benchmark 是 libdispatch (Grand Central Dispatch) 的一部分。但这个方法并没有被公开声明，所以你必须要自己声明：</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">```bash</span><br><span class="line">extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));</span><br></pre></td></tr></table></figure>
 <p>因为没有公开的函数定义， dispatch_benchmark 在 Xcode 中也没有公开的文档。但幸运的是有 man 页面</p>
 <p>dispatch_benchmark(3)</p>
 <blockquote>
@@ -367,7 +367,7 @@
 <li>Code bound by memory bandwidth may be inferred by negligible changes in performance as concurrency is increased.</li>
 <li>Code bound by critical sections may be inferred by retrograde changes in performance as concurrency is increased.<ul>
 <li>Intentional: locks, mutexes, and condition variables.</li>
-<li>Accidental: unrelated and frequently modified data on the same cache-line.</li>
+<li>Accidental: unrelated and frequently modified data on the same cache-line.  </li>
 </ul>
 </li>
 </ul>
