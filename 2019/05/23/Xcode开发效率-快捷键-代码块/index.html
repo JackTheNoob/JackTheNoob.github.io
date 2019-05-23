@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="iOS,内存管理,AutoreleasePool,ARC,">
+  <meta name="keywords" content="ios,Xcode,shortcut,Code Snippet,">
 
 
 
@@ -79,18 +79,25 @@
 
 
 
-<meta name="description" content="待编写">
-<meta name="keywords" content="iOS,内存管理,AutoreleasePool,ARC">
+<meta name="description" content="前言 程序员使用最多的还是键盘，我们可以通过快捷键的使用方便、快捷访问Xcode很多功能。从而提交开发效率。  Keys Shift + Command + O（字母O，而非0）弹出快速查找文件窗口。  Shift +Commond + 0（数字0，而非字母O）快速打开官方文档。  Shift + Comand + j 定位到文件所在目录，配合第一条快捷键使用。 Control + Command">
+<meta name="keywords" content="ios,Xcode,shortcut,Code Snippet">
 <meta property="og:type" content="article">
-<meta property="og:title" content="iOS内存管理-AutoreleasePool">
-<meta property="og:url" content="http://jackthenoob.github.io/2019/05/21/iOS内存管理-AutoreleasePool/index.html">
+<meta property="og:title" content="Xcode开发效率-快捷键&amp;代码块">
+<meta property="og:url" content="http://jackthenoob.github.io/2019/05/23/Xcode开发效率-快捷键-代码块/index.html">
 <meta property="og:site_name" content="Lyddwn">
-<meta property="og:description" content="待编写">
+<meta property="og:description" content="前言 程序员使用最多的还是键盘，我们可以通过快捷键的使用方便、快捷访问Xcode很多功能。从而提交开发效率。  Keys Shift + Command + O（字母O，而非0）弹出快速查找文件窗口。  Shift +Commond + 0（数字0，而非字母O）快速打开官方文档。  Shift + Comand + j 定位到文件所在目录，配合第一条快捷键使用。 Control + Command">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-05-23T02:50:06.642Z">
+<meta property="og:image" content="http://jackthenoob.github.io/2019/05/23/Xcode开发效率-快捷键-代码块/a001.gif">
+<meta property="og:image" content="http://jackthenoob.github.io/2019/05/23/Xcode开发效率-快捷键-代码块/a002.jpg">
+<meta property="og:image" content="http://jackthenoob.github.io/2019/05/23/Xcode开发效率-快捷键-代码块/a003.jpg">
+<meta property="og:image" content="http://jackthenoob.github.io/2019/05/23/Xcode开发效率-快捷键-代码块/a004.png">
+<meta property="og:image" content="http://jackthenoob.github.io/2019/05/23/Xcode开发效率-快捷键-代码块/a006.png">
+<meta property="og:image" content="http://jackthenoob.github.io/2019/05/23/Xcode开发效率-快捷键-代码块/a005.jpg">
+<meta property="og:updated_time" content="2019-05-23T03:41:34.283Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="iOS内存管理-AutoreleasePool">
-<meta name="twitter:description" content="待编写">
+<meta name="twitter:title" content="Xcode开发效率-快捷键&amp;代码块">
+<meta name="twitter:description" content="前言 程序员使用最多的还是键盘，我们可以通过快捷键的使用方便、快捷访问Xcode很多功能。从而提交开发效率。  Keys Shift + Command + O（字母O，而非0）弹出快速查找文件窗口。  Shift +Commond + 0（数字0，而非字母O）快速打开官方文档。  Shift + Comand + j 定位到文件所在目录，配合第一条快捷键使用。 Control + Command">
+<meta name="twitter:image" content="http://jackthenoob.github.io/2019/05/23/Xcode开发效率-快捷键-代码块/a001.gif">
 
 
 
@@ -120,13 +127,13 @@
 
 
 
-  <link rel="canonical" href="http://jackthenoob.github.io/2019/05/21/iOS内存管理-AutoreleasePool/">
+  <link rel="canonical" href="http://jackthenoob.github.io/2019/05/23/Xcode开发效率-快捷键-代码块/">
 
 
 
 
 
-  <title>iOS内存管理-AutoreleasePool | Lyddwn</title>
+  <title>Xcode开发效率-快捷键&代码块 | Lyddwn</title>
   
 
 
@@ -263,7 +270,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://jackthenoob.github.io/2019/05/21/iOS内存管理-AutoreleasePool/">
+    <link itemprop="mainEntityOfPage" href="http://jackthenoob.github.io/2019/05/23/Xcode开发效率-快捷键-代码块/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="垂杨小梳雨">
@@ -280,7 +287,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">iOS内存管理-AutoreleasePool</h1>
+          <h1 class="post-title" itemprop="name headline">Xcode开发效率-快捷键&代码块</h1>
         
 
         <div class="post-meta">
@@ -292,8 +299,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-21T11:15:26+08:00">
-                2019-05-21
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-23T11:07:06+08:00">
+                2019-05-23
               </time>
             
 
@@ -315,8 +322,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS</span>
+                  <a href="/categories/Xcode/" itemprop="url" rel="index">
+                    <span itemprop="name">Xcode</span>
                   </a>
                 </span>
 
@@ -352,7 +359,76 @@
       
 
       
-        <h3 id="待编写"><a href="#待编写" class="headerlink" title="待编写"></a>待编写</h3>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote>
+<p>程序员使用最多的还是键盘，我们可以通过快捷键的使用方便、快捷访问Xcode很多功能。从而提交开发效率。</p>
+</blockquote>
+<h4 id="Keys"><a href="#Keys" class="headerlink" title="Keys"></a>Keys</h4><ul>
+<li>Shift + Command + O（字母O，而非0）弹出快速查找文件窗口。 </li>
+<li>Shift +Commond + 0（数字0，而非字母O）快速打开官方文档。 </li>
+<li>Shift + Comand + j 定位到文件所在目录，配合第一条快捷键使用。</li>
+<li>Control + Command + 上\下  切换 .m 和.h。</li>
+<li>Command + t 新建一个Tab（这个很实用，我平时一般都会建3，4个Tab）。</li>
+<li>Command + w 关闭Tab。</li>
+<li>Command + ` 切换同一个应用多个窗口。可以用来在多个Xcode窗口中切换。</li>
+<li>Control + Command + e 可以批量修改光标所在位置的变量，像这样：</li>
+</ul>
+<p><img src="/2019/05/23/Xcode开发效率-快捷键-代码块/a001.gif" alt></p>
+<ul>
+<li>Shift + Command + f 打开全局搜索。(可以加个 Any 正则，就可以搜出如图中的这种)</li>
+</ul>
+<p><img src="/2019/05/23/Xcode开发效率-快捷键-代码块/a002.jpg" alt></p>
+<ul>
+<li>Command + f 在类中搜索 （enter 匹配下一个 Shift + enter 匹配上一个）。</li>
+<li>Command + 上\下\左\右 光标切换到类首/类尾/行首/行尾。</li>
+<li>Shift + Command + 上\下\左\右 从当前光标所在选中到类首/类尾/行首/行尾的文本。</li>
+<li>alt + 左\右 光标左右移动一个单词。 </li>
+<li>Command + delete 删除光标到行首的内容，同理alt + delete 删除光标前的一个单词，另外可以先切换到到行尾 用Command + delete删除一整行内容。</li>
+<li>Control + i 自动缩进代码。</li>
+<li>Command + \ 当前行加断点。</li>
+<li>alt + Command + \，新建一个symbolic breakpoint。</li>
+<li>Command + n新建文件 ，Shift + Command + n 新建工程。</li>
+<li>alt + Command + 左\右 折叠\显示当前块。</li>
+<li>Shift + alt + Command + 左\右 折叠\显示当前文件中的块。</li>
+<li>alt + Command + [ 上移，如果没有选中，默认上移当前行，alt + Command + ] 下移。</li>
+<li>Command + ] 向右缩进，支持多行，Command + [ 向左缩进。（类似Tab与shift+tab）。</li>
+<li>Shift + Command + k product 清理；Command + r Run；Command + b 编译。</li>
+</ul>
+<h4 id="Xcode窗口控制"><a href="#Xcode窗口控制" class="headerlink" title="Xcode窗口控制"></a>Xcode窗口控制</h4><ul>
+<li>Shift + Command + Y 隐藏\显示 console 区。</li>
+<li>Shift + Command + C 显示 console 区，且直接聚焦。</li>
+<li>Command + k console清屏。</li>
+<li>Control + 1 （没用过&gt;,&lt;）。</li>
+</ul>
+<p><img src="/2019/05/23/Xcode开发效率-快捷键-代码块/a003.jpg" alt></p>
+<ul>
+<li>Control + 6 查看当前类的方法列表（可以用 pragma mark 来合理分块，查看更直观）。</li>
+<li>Command + （1~9）切换左边窗体.Command + 0 显示 \ 隐藏左边窗体。</li>
+<li>alt + Command + 0 显示 \ 隐藏右边窗体，同理alt + Command + 1,2等也可以切换。</li>
+<li>Command + , 弹出 Perferences ,可以用 Command + w 隐藏。</li>
+<li>Command + +(加号)/-(减号)，放大/缩小整体页面。与Web端一致。</li>
+</ul>
+<h4 id="Code-Snippet"><a href="#Code-Snippet" class="headerlink" title="Code Snippet"></a>Code Snippet</h4><blockquote>
+<p>选中编写好的代码块，右击选择 Create Code Snippet</p>
+</blockquote>
+<p><img src="/2019/05/23/Xcode开发效率-快捷键-代码块/a004.png" alt></p>
+<p><img src="/2019/05/23/Xcode开发效率-快捷键-代码块/a006.png" alt></p>
+<h5 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明:"></a>参数说明:</h5><ul>
+<li>Title: Code Snippet的名字,将作为主标题显示在列表中。</li>
+<li>Summary: 说明,将作为副标题显示在列表中。</li>
+<li>Platform: 平台,有All,iOS,watchOS,macOS和tvOS五个选项。</li>
+<li>Language: 语言,有Objective-C,Swift等选项。</li>
+<li>Completion Shortcut: 快捷键。</li>
+<li>Completion Scopes: 匹配范围,比如说OC中一个类的代码块不该在另一个类中匹配出来,这样可以更加精确地匹配,这个选项可以多选。</li>
+<li>代码: 这就不用多说,直接在代码模块修改,但是这里相当于纯文本,建议验证后再保存。</li>
+</ul>
+<blockquote>
+<p>Command + shift + L 打开所有代码块。</p>
+</blockquote>
+<p><img src="/2019/05/23/Xcode开发效率-快捷键-代码块/a005.jpg" alt></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Tips: 代码段中可以使用&lt;<span class="comment">#placeHolder#&gt;用于占位</span></span><br></pre></td></tr></table></figure>
+<h2 id="Xcode插件"><a href="#Xcode插件" class="headerlink" title="Xcode插件"></a>Xcode插件</h2><p>略（待补充）</p>
+<h2 id="Simlulater"><a href="#Simlulater" class="headerlink" title="Simlulater"></a>Simlulater</h2><p>略（待补充）</p>
+
       
     </div>
     
@@ -369,13 +445,13 @@
       
         <div class="post-tags">
           
-            <a href="/tags/iOS/" rel="tag"># iOS</a>
+            <a href="/tags/ios/" rel="tag"># ios</a>
           
-            <a href="/tags/内存管理/" rel="tag"># 内存管理</a>
+            <a href="/tags/Xcode/" rel="tag"># Xcode</a>
           
-            <a href="/tags/AutoreleasePool/" rel="tag"># AutoreleasePool</a>
+            <a href="/tags/shortcut/" rel="tag"># shortcut</a>
           
-            <a href="/tags/ARC/" rel="tag"># ARC</a>
+            <a href="/tags/Code-Snippet/" rel="tag"># Code Snippet</a>
           
         </div>
       
@@ -388,8 +464,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/05/21/Lighter-your-ViewController-打造轻量化ViewController/" rel="next" title="Lighter your ViewController-打造轻量化ViewController">
-                <i class="fa fa-chevron-left"></i> Lighter your ViewController-打造轻量化ViewController
+              <a href="/2019/05/23/修改-gitignoe文件后如何生效/" rel="next" title="修改.gitignoe文件后如何生效">
+                <i class="fa fa-chevron-left"></i> 修改.gitignoe文件后如何生效
               </a>
             
           </div>
@@ -397,10 +473,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/05/21/Swift学习笔记-一/" rel="prev" title="Swift学习笔记(一)">
-                Swift学习笔记(一) <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -532,7 +604,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#待编写"><span class="nav-number">1.</span> <span class="nav-text">待编写</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Keys"><span class="nav-number">1.0.1.</span> <span class="nav-text">Keys</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Xcode窗口控制"><span class="nav-number">1.0.2.</span> <span class="nav-text">Xcode窗口控制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Code-Snippet"><span class="nav-number">1.0.3.</span> <span class="nav-text">Code Snippet</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#参数说明"><span class="nav-number">1.0.3.1.</span> <span class="nav-text">参数说明:</span></a></li></ol></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#Xcode插件"><span class="nav-number">2.</span> <span class="nav-text">Xcode插件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Simlulater"><span class="nav-number">3.</span> <span class="nav-text">Simlulater</span></a></li></div>
             
 
           </div>
