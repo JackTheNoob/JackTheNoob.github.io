@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言最近线上发生了一个Crash。根据栈信息定位到如下代码12EXC_BAD_ACCESS (SIGBUS)Attempted to dereference garbage pointer 0x10. Originated at or in a subcall of WebViewJavascriptBridge_js 123if (instance-&amp;gt;ivar) &amp;#123;	...&amp;#1">
+<meta name="keywords" content="iOS,swift,react-native,javascript,微信开发,微信小程序,C,C语言,程序猿,博客,Lyddwn,码农">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用-&gt;访问实例对象成员变量Crash问题">
+<meta property="og:url" content="http://jackthenoob.github.io/2019/05/22/使用-访问实例对象成员变量Crash问题/index.html">
+<meta property="og:site_name" content="Lyddwn">
+<meta property="og:description" content="前言最近线上发生了一个Crash。根据栈信息定位到如下代码12EXC_BAD_ACCESS (SIGBUS)Attempted to dereference garbage pointer 0x10. Originated at or in a subcall of WebViewJavascriptBridge_js 123if (instance-&amp;gt;ivar) &amp;#123;	...&amp;#1">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-05-23T01:44:51.411Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用-&gt;访问实例对象成员变量Crash问题">
+<meta name="twitter:description" content="前言最近线上发生了一个Crash。根据栈信息定位到如下代码12EXC_BAD_ACCESS (SIGBUS)Attempted to dereference garbage pointer 0x10. Originated at or in a subcall of WebViewJavascriptBridge_js 123if (instance-&amp;gt;ivar) &amp;#123;	...&amp;#1">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://jackthenoob.github.io/2019/05/22/使用-访问实例对象成员变量Crash问题/">
+
+
+
+
+
+  <title>使用->访问实例对象成员变量Crash问题 | Lyddwn</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Lyddwn</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">生活不只是代码</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>
+            
+            Commonweal 404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jackthenoob.github.io/2019/05/22/使用-访问实例对象成员变量Crash问题/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="垂杨小梳雨">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lyddwn">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">使用->访问实例对象成员变量Crash问题</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-22T21:10:05+08:00">
+                2019-05-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h6 id="最近线上发生了一个Crash。根据栈信息定位到如下代码"><a href="#最近线上发生了一个Crash。根据栈信息定位到如下代码" class="headerlink" title="最近线上发生了一个Crash。根据栈信息定位到如下代码"></a>最近线上发生了一个Crash。根据栈信息定位到如下代码</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">EXC_BAD_ACCESS (SIGBUS)</span><br><span class="line">Attempted to dereference garbage pointer 0x10. Originated at or <span class="keyword">in</span> a subcall of WebViewJavascriptBridge_js</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (instance-&gt;ivar) &#123;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="就是访问成员变量时Crash。"><a href="#就是访问成员变量时Crash。" class="headerlink" title="就是访问成员变量时Crash。"></a>就是访问成员变量时Crash。</h6><h6 id="难道instance可能为空，但是为空应该也不会Crash吧？因为在我的固有的思维里面，对nil发送消息并不会crash。"><a href="#难道instance可能为空，但是为空应该也不会Crash吧？因为在我的固有的思维里面，对nil发送消息并不会crash。" class="headerlink" title="难道instance可能为空，但是为空应该也不会Crash吧？因为在我的固有的思维里面，对nil发送消息并不会crash。"></a>难道instance可能为空，但是为空应该也不会Crash吧？因为在我的固有的思维里面，对nil发送消息并不会crash。</h6><h5 id="但是又仔细想了想，访问成员变量时，是通过当前类的实例对象偏移量再加上此变量在类中的偏移量获取的。与发送消息无关（不是属性，没有写get方法）。如果当前实例对象如果为空（obj的offet-0），为什么还会继续呢？百思不得解。"><a href="#但是又仔细想了想，访问成员变量时，是通过当前类的实例对象偏移量再加上此变量在类中的偏移量获取的。与发送消息无关（不是属性，没有写get方法）。如果当前实例对象如果为空（obj的offet-0），为什么还会继续呢？百思不得解。" class="headerlink" title="但是又仔细想了想，访问成员变量时，是通过当前类的实例对象偏移量再加上此变量在类中的偏移量获取的。与发送消息无关（不是属性，没有写get方法）。如果当前实例对象如果为空（obj的offet=0），为什么还会继续呢？百思不得解。"></a>但是又仔细想了想，访问成员变量时，是通过当前类的实例对象偏移量再加上此变量在类中的偏移量获取的。与发送消息无关（不是属性，没有写get方法）。如果当前实例对象如果为空（obj的offet=0），为什么还会继续呢？百思不得解。</h5><h5 id="写了一个demo，使用clang命令转换为cpp文件后，才知道缘由。"><a href="#写了一个demo，使用clang命令转换为cpp文件后，才知道缘由。" class="headerlink" title="写了一个demo，使用clang命令转换为cpp文件后，才知道缘由。"></a>写了一个demo，使用clang命令转换为cpp文件后，才知道缘由。</h5><h5 id="大体代码如下："><a href="#大体代码如下：" class="headerlink" title="大体代码如下："></a>大体代码如下：</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">//MyObject.h</span><br><span class="line">@interface MyObject : NSObject &#123;</span><br><span class="line">    @public</span><br><span class="line">    NSString    *_strObject;</span><br><span class="line">    NSArray     *_arrList;</span><br><span class="line">&#125;</span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">//Test.h</span><br><span class="line">@implementation Test</span><br><span class="line"></span><br><span class="line">- (void)helloworld &#123;</span><br><span class="line">    MyObject *obj = nil;</span><br><span class="line">    <span class="keyword">if</span> (condition) &#123;</span><br><span class="line">        obj = [MyObject new];</span><br><span class="line">    &#125;</span><br><span class="line">    NSString *str = obj-&gt;_strObject;</span><br><span class="line">    NSLog(@<span class="string">"%@"</span>, str);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang -rewrite-objc Test.m</span><br></pre></td></tr></table></figure>
+<h6 id="通过clang命令获取Test-cpp文件（10万行左右）"><a href="#通过clang命令获取Test-cpp文件（10万行左右）" class="headerlink" title="通过clang命令获取Test.cpp文件（10万行左右）"></a>通过clang命令获取Test.cpp文件（10万行左右）</h6><h6 id="在后面看到如下片段"><a href="#在后面看到如下片段" class="headerlink" title="在后面看到如下片段"></a>在后面看到如下片段</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#pragma clang assume_nonnull end</span></span><br><span class="line">// @implementation Test</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">static void _I_Test_helloworld(Test * self, SEL _cmd) &#123;</span><br><span class="line">    MyObject *obj = __null;</span><br><span class="line">    <span class="keyword">if</span> (condition) &#123;</span><br><span class="line">        obj = ((MyObject *(*)(id, SEL))(void *)objc_msgSend)((id)objc_getClass(<span class="string">"MyObject"</span>), sel_registerName(<span class="string">"new"</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    NSString *str = (*(NSString **)((char *)obj + OBJC_IVAR_<span class="variable">$_MyObject</span><span class="variable">$_strObject</span>));</span><br><span class="line">    NSLog((NSString *)&amp;__NSConstantStringImpl__var_folders_hs_pl2pwmlj27g9xt0wlb9mbdbh0000gn_T_Test_2546e4_mi_0, str);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// @end</span><br></pre></td></tr></table></figure>
+<h5 id="主要下这行代码"><a href="#主要下这行代码" class="headerlink" title="主要下这行代码"></a>主要下这行代码</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NSString *str = (*(NSString **)((char *)obj + OBJC_IVAR_<span class="variable">$_MyObject</span><span class="variable">$_strObject</span>));</span><br></pre></td></tr></table></figure>
+<p>#######    这段代码就是获取_strObject偏移量，OBJC_IVAR_$_MyObject$_strObject是一个在编译器已经决定了的固定的偏移量。obj就是实例对象的首地址。通过2个值获取到_strObject地址。如果obj==nil;这个偏移地址就是一个固定的值0，类似0x10(这也和crash信息里相匹配)。</p>
+<hr>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><blockquote>
+<p>通过-&gt;访问成员变量要判断当前变量是否为空。通过offset寻址成员变量时并不会多一层为空判断逻辑。</p>
+</blockquote>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/21/Swift学习笔记-一/" rel="next" title="Swift学习笔记(一)">
+                <i class="fa fa-chevron-left"></i> Swift学习笔记(一)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">垂杨小梳雨</p>
+              <p class="site-description motion-element" itemprop="description">None</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">tags</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#最近线上发生了一个Crash。根据栈信息定位到如下代码"><span class="nav-number">1.0.0.0.1.</span> <span class="nav-text">最近线上发生了一个Crash。根据栈信息定位到如下代码</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#就是访问成员变量时Crash。"><span class="nav-number">1.0.0.0.2.</span> <span class="nav-text">就是访问成员变量时Crash。</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#难道instance可能为空，但是为空应该也不会Crash吧？因为在我的固有的思维里面，对nil发送消息并不会crash。"><span class="nav-number">1.0.0.0.3.</span> <span class="nav-text">难道instance可能为空，但是为空应该也不会Crash吧？因为在我的固有的思维里面，对nil发送消息并不会crash。</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#但是又仔细想了想，访问成员变量时，是通过当前类的实例对象偏移量再加上此变量在类中的偏移量获取的。与发送消息无关（不是属性，没有写get方法）。如果当前实例对象如果为空（obj的offet-0），为什么还会继续呢？百思不得解。"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">但是又仔细想了想，访问成员变量时，是通过当前类的实例对象偏移量再加上此变量在类中的偏移量获取的。与发送消息无关（不是属性，没有写get方法）。如果当前实例对象如果为空（obj的offet=0），为什么还会继续呢？百思不得解。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#写了一个demo，使用clang命令转换为cpp文件后，才知道缘由。"><span class="nav-number">1.0.0.2.</span> <span class="nav-text">写了一个demo，使用clang命令转换为cpp文件后，才知道缘由。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#大体代码如下："><span class="nav-number">1.0.0.3.</span> <span class="nav-text">大体代码如下：</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#通过clang命令获取Test-cpp文件（10万行左右）"><span class="nav-number">1.0.0.3.1.</span> <span class="nav-text">通过clang命令获取Test.cpp文件（10万行左右）</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#在后面看到如下片段"><span class="nav-number">1.0.0.3.2.</span> <span class="nav-text">在后面看到如下片段</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#主要下这行代码"><span class="nav-number">1.0.0.4.</span> <span class="nav-text">主要下这行代码</span></a></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#结论"><span class="nav-number">2.</span> <span class="nav-text">结论</span></a></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">垂杨小梳雨</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -263,6 +263,459 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jackthenoob.github.io/2019/05/22/使用-访问实例对象成员变量Crash问题/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="垂杨小梳雨">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lyddwn">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/22/使用-访问实例对象成员变量Crash问题/" itemprop="url">使用->访问实例对象成员变量Crash问题</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-22T21:10:05+08:00">
+                2019-05-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h6 id="最近线上发生了一个Crash。根据栈信息定位到如下代码"><a href="#最近线上发生了一个Crash。根据栈信息定位到如下代码" class="headerlink" title="最近线上发生了一个Crash。根据栈信息定位到如下代码"></a>最近线上发生了一个Crash。根据栈信息定位到如下代码</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">EXC_BAD_ACCESS (SIGBUS)</span><br><span class="line">Attempted to dereference garbage pointer 0x10. Originated at or <span class="keyword">in</span> a subcall of WebViewJavascriptBridge_js</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (instance-&gt;ivar) &#123;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="就是访问成员变量时Crash。"><a href="#就是访问成员变量时Crash。" class="headerlink" title="就是访问成员变量时Crash。"></a>就是访问成员变量时Crash。</h6><h6 id="难道instance可能为空，但是为空应该也不会Crash吧？因为在我的固有的思维里面，对nil发送消息并不会crash。"><a href="#难道instance可能为空，但是为空应该也不会Crash吧？因为在我的固有的思维里面，对nil发送消息并不会crash。" class="headerlink" title="难道instance可能为空，但是为空应该也不会Crash吧？因为在我的固有的思维里面，对nil发送消息并不会crash。"></a>难道instance可能为空，但是为空应该也不会Crash吧？因为在我的固有的思维里面，对nil发送消息并不会crash。</h6><h5 id="但是又仔细想了想，访问成员变量时，是通过当前类的实例对象偏移量再加上此变量在类中的偏移量获取的。与发送消息无关（不是属性，没有写get方法）。如果当前实例对象如果为空（obj的offet-0），为什么还会继续呢？百思不得解。"><a href="#但是又仔细想了想，访问成员变量时，是通过当前类的实例对象偏移量再加上此变量在类中的偏移量获取的。与发送消息无关（不是属性，没有写get方法）。如果当前实例对象如果为空（obj的offet-0），为什么还会继续呢？百思不得解。" class="headerlink" title="但是又仔细想了想，访问成员变量时，是通过当前类的实例对象偏移量再加上此变量在类中的偏移量获取的。与发送消息无关（不是属性，没有写get方法）。如果当前实例对象如果为空（obj的offet=0），为什么还会继续呢？百思不得解。"></a>但是又仔细想了想，访问成员变量时，是通过当前类的实例对象偏移量再加上此变量在类中的偏移量获取的。与发送消息无关（不是属性，没有写get方法）。如果当前实例对象如果为空（obj的offet=0），为什么还会继续呢？百思不得解。</h5><h5 id="写了一个demo，使用clang命令转换为cpp文件后，才知道缘由。"><a href="#写了一个demo，使用clang命令转换为cpp文件后，才知道缘由。" class="headerlink" title="写了一个demo，使用clang命令转换为cpp文件后，才知道缘由。"></a>写了一个demo，使用clang命令转换为cpp文件后，才知道缘由。</h5><h5 id="大体代码如下："><a href="#大体代码如下：" class="headerlink" title="大体代码如下："></a>大体代码如下：</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">//MyObject.h</span><br><span class="line">@interface MyObject : NSObject &#123;</span><br><span class="line">    @public</span><br><span class="line">    NSString    *_strObject;</span><br><span class="line">    NSArray     *_arrList;</span><br><span class="line">&#125;</span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">//Test.h</span><br><span class="line">@implementation Test</span><br><span class="line"></span><br><span class="line">- (void)helloworld &#123;</span><br><span class="line">    MyObject *obj = nil;</span><br><span class="line">    <span class="keyword">if</span> (condition) &#123;</span><br><span class="line">        obj = [MyObject new];</span><br><span class="line">    &#125;</span><br><span class="line">    NSString *str = obj-&gt;_strObject;</span><br><span class="line">    NSLog(@<span class="string">"%@"</span>, str);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang -rewrite-objc Test.m</span><br></pre></td></tr></table></figure>
+<h6 id="通过clang命令获取Test-cpp文件（10万行左右）"><a href="#通过clang命令获取Test-cpp文件（10万行左右）" class="headerlink" title="通过clang命令获取Test.cpp文件（10万行左右）"></a>通过clang命令获取Test.cpp文件（10万行左右）</h6><h6 id="在后面看到如下片段"><a href="#在后面看到如下片段" class="headerlink" title="在后面看到如下片段"></a>在后面看到如下片段</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#pragma clang assume_nonnull end</span></span><br><span class="line">// @implementation Test</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">static void _I_Test_helloworld(Test * self, SEL _cmd) &#123;</span><br><span class="line">    MyObject *obj = __null;</span><br><span class="line">    <span class="keyword">if</span> (condition) &#123;</span><br><span class="line">        obj = ((MyObject *(*)(id, SEL))(void *)objc_msgSend)((id)objc_getClass(<span class="string">"MyObject"</span>), sel_registerName(<span class="string">"new"</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    NSString *str = (*(NSString **)((char *)obj + OBJC_IVAR_<span class="variable">$_MyObject</span><span class="variable">$_strObject</span>));</span><br><span class="line">    NSLog((NSString *)&amp;__NSConstantStringImpl__var_folders_hs_pl2pwmlj27g9xt0wlb9mbdbh0000gn_T_Test_2546e4_mi_0, str);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// @end</span><br></pre></td></tr></table></figure>
+<h5 id="主要下这行代码"><a href="#主要下这行代码" class="headerlink" title="主要下这行代码"></a>主要下这行代码</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NSString *str = (*(NSString **)((char *)obj + OBJC_IVAR_<span class="variable">$_MyObject</span><span class="variable">$_strObject</span>));</span><br></pre></td></tr></table></figure>
+<p>#######    这段代码就是获取_strObject偏移量，OBJC_IVAR_$_MyObject$_strObject是一个在编译器已经决定了的固定的偏移量。obj就是实例对象的首地址。通过2个值获取到_strObject地址。如果obj==nil;这个偏移地址就是一个固定的值0，类似0x10(这也和crash信息里相匹配)。</p>
+<hr>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><blockquote>
+<p>通过-&gt;访问成员变量要判断当前变量是否为空。通过offset寻址成员变量时并不会多一层为空判断逻辑。</p>
+</blockquote>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jackthenoob.github.io/2019/05/21/Swift学习笔记-一/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="垂杨小梳雨">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lyddwn">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/21/Swift学习笔记-一/" itemprop="url">Swift学习笔记(一)</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-21T11:21:00+08:00">
+                2019-05-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="简述"><a href="#简述" class="headerlink" title="简述"></a>简述</h1><h5 id="Swift是一种支持多编程范式、安全、快速和互动的跨平台编译式编程语言。且编译器对性能进行了优化，编程语言对开发进行了优化，两者互不干扰，鱼与熊掌兼得。它支持代码预览（playgrounds），这个革命性的特性可以允许程序员在不编译和运行应用程序的前提下运行-Swift-代码并实时查看结果。"><a href="#Swift是一种支持多编程范式、安全、快速和互动的跨平台编译式编程语言。且编译器对性能进行了优化，编程语言对开发进行了优化，两者互不干扰，鱼与熊掌兼得。它支持代码预览（playgrounds），这个革命性的特性可以允许程序员在不编译和运行应用程序的前提下运行-Swift-代码并实时查看结果。" class="headerlink" title="Swift是一种支持多编程范式、安全、快速和互动的跨平台编译式编程语言。且编译器对性能进行了优化，编程语言对开发进行了优化，两者互不干扰，鱼与熊掌兼得。它支持代码预览（playgrounds），这个革命性的特性可以允许程序员在不编译和运行应用程序的前提下运行 Swift 代码并实时查看结果。"></a>Swift是一种支持多编程范式、安全、快速和互动的跨平台编译式编程语言。且编译器对性能进行了优化，编程语言对开发进行了优化，两者互不干扰，鱼与熊掌兼得。它支持代码预览（playgrounds），这个革命性的特性可以允许程序员在不编译和运行应用程序的前提下运行 Swift 代码并实时查看结果。</h5><h4 id="历史"><a href="#历史" class="headerlink" title="历史"></a>历史</h4><ul>
+<li>2010年7月，苹果开发者工具部门总监克里斯·拉特纳开始着手 Swift 编程语言的设计工作，以一年时间，完成基本架构后，他领导了一个设计团队大力参与其中。</li>
+<li>2014年6月发表， Swift大约历经4年的开发期。苹果宣称Swift的特点是：快速、现代、安全、互动，而且明显优于Objective-C语言。Swift以LLVM编译，可以使用现有的Cocoa和Cocoa Touch框架。Xcode Playgrounds功能是Swift为苹果开发工具带来的最大创新，该功能提供强大的互动效果，能让Swift源代码在撰写过程中能即时显示出其运行结果。拉特纳本人强调，Playgrounds很大程度是受到布雷特·维克多理念的启发。</li>
+<li>2015年6月8日，苹果于WWDC2015上宣布，Swift将开放源代码，包括编译器和标准库。</li>
+<li>2015年12月3日，苹果宣布开源swift，并支持Linux，苹果在新网站swift.org和托管网站Github上开源了swift，但苹果的app store并不支持开源的swift，只支持苹果官方的swift版本，官方版本会在新网站swift.org上定期与开源版本同步。</li>
+</ul>
+<p><a href="https://swiftgg.gitbook.io/swift/huan-ying-shi-yong-swift/04_revision_history" target="_blank" rel="noopener">Swift历史版本</a></p>
+<ul>
+<li>2019-01-24 Swift 5.0 更新</li>
+<li>2018-09-17 Swift 4.2 更新</li>
+<li>2018-03-29 Swift 4.1 更新</li>
+<li>2017-12-04 Swift 4.0.3 更新</li>
+<li>2017-09-19 Swift 4.0 更新</li>
+<li>2017-03-27 Swift 3.1 更新</li>
+<li>2016-10-27 Swift 3.0.1 更新</li>
+<li>2016-09-13 Swift 3.0 更新</li>
+<li>2016-03-21 Swift 2.2 更新</li>
+<li>2015-10-20 Swift 2.1 更新</li>
+<li>2015-09-16 Swift 2.0 更新</li>
+<li>2015-4-8 Swift 1.2 更新</li>
+<li>2014-10-16 Swift 1.1 更新</li>
+<li>2014-08-18 Swift 1.0 更新 </li>
+</ul>
+<h2 id="Swift-是一门开发-iOS-macOS-watchOS-和-tvOS-应用的新语言。然而，如果你有-C-或者-Objective-C-开发经验的话，你会发现-Swift-的很多内容都是你熟悉的。"><a href="#Swift-是一门开发-iOS-macOS-watchOS-和-tvOS-应用的新语言。然而，如果你有-C-或者-Objective-C-开发经验的话，你会发现-Swift-的很多内容都是你熟悉的。" class="headerlink" title="Swift 是一门开发 iOS, macOS, watchOS 和 tvOS 应用的新语言。然而，如果你有 C 或者 Objective-C 开发经验的话，你会发现 Swift 的很多内容都是你熟悉的。"></a>Swift 是一门开发 iOS, macOS, watchOS 和 tvOS 应用的新语言。然而，如果你有 C 或者 Objective-C 开发经验的话，你会发现 Swift 的很多内容都是你熟悉的。</h2><h3 id="下面通过Swift与Objective-C-C对比来介绍这门语言"><a href="#下面通过Swift与Objective-C-C对比来介绍这门语言" class="headerlink" title="下面通过Swift与Objective-C/C对比来介绍这门语言"></a>下面通过Swift与Objective-C/C对比来介绍这门语言</h3><h2 id="基础部分"><a href="#基础部分" class="headerlink" title="基础部分"></a>基础部分</h2><h4 id="基本数值类型（numeric-types）"><a href="#基本数值类型（numeric-types）" class="headerlink" title="基本数值类型（numeric types）"></a>基本数值类型（numeric types）</h4><h6 id="Swift-包含了-C-和-Objective-C-上所有基础数据类型，Int-表示整型值；-Double-和-Float-表示浮点型值；-Bool-是布尔型值；String-是文本型数据。-Swift-还提供了三个基本的集合类型，Array、Set-和-Dictionary。类似OC中NSArray、NSMutableArray、NSSet、NSMutableSet、NSDictionary、NSMutableDictionary。"><a href="#Swift-包含了-C-和-Objective-C-上所有基础数据类型，Int-表示整型值；-Double-和-Float-表示浮点型值；-Bool-是布尔型值；String-是文本型数据。-Swift-还提供了三个基本的集合类型，Array、Set-和-Dictionary。类似OC中NSArray、NSMutableArray、NSSet、NSMutableSet、NSDictionary、NSMutableDictionary。" class="headerlink" title="Swift 包含了 C 和 Objective-C 上所有基础数据类型，Int 表示整型值； Double 和 Float 表示浮点型值； Bool 是布尔型值；String 是文本型数据。 Swift 还提供了三个基本的集合类型，Array、Set 和 Dictionary。类似OC中NSArray、NSMutableArray、NSSet、NSMutableSet、NSDictionary、NSMutableDictionary。"></a>Swift 包含了 C 和 Objective-C 上所有基础数据类型，Int 表示整型值； Double 和 Float 表示浮点型值； Bool 是布尔型值；String 是文本型数据。 Swift 还提供了三个基本的集合类型，Array、Set 和 Dictionary。类似OC中NSArray、NSMutableArray、NSSet、NSMutableSet、NSDictionary、NSMutableDictionary。</h6><blockquote>
+<p>值类型(Value Type)&amp;引用类型(Reference Type)  </p>
+<p>内存（RAM）中有两个区域，栈区（stack）和堆区（heap）。在 Swift 中，值类型，存放在栈区；引用类型，存放在堆区。<br> 在 Swift 中，典型的有 struct，enum，以及 tuples(元组) 都是值类型。而平时使用的 Int， Double，Float，String，Array，Dictionary，Set 其实都是用结构体实现的，也是值类型。详见下面代码</p>
+<p>在 Swift 中，class 和闭包是引用类型。  </p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public struct Int : FixedWidthInteger, SignedInteger &#123;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="元组-tuples"><a href="#元组-tuples" class="headerlink" title="元组(tuples)"></a>元组(tuples)</h4><h6 id="元组（tuples）把多个值组合成一个复合值。元组内的值可以是任意类型，并不要求是相同类型。"><a href="#元组（tuples）把多个值组合成一个复合值。元组内的值可以是任意类型，并不要求是相同类型。" class="headerlink" title="元组（tuples）把多个值组合成一个复合值。元组内的值可以是任意类型，并不要求是相同类型。"></a>元组（tuples）把多个值组合成一个复合值。元组内的值可以是任意类型，并不要求是相同类型。</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">let</span> http404Error = (404, <span class="string">"Not Found"</span>)</span><br><span class="line">// http404Error 的类型是 (Int, String)，值是 (404, <span class="string">"Not Found"</span>)</span><br><span class="line"><span class="built_in">let</span> (statusCode, statusMessage) = http404Error</span><br><span class="line"><span class="built_in">print</span>(<span class="string">"The status code is \(statusCode)"</span>)</span><br><span class="line">// 输出“The status code is 404”</span><br><span class="line"><span class="built_in">print</span>(<span class="string">"The status message is \(statusMessage)"</span>)</span><br><span class="line">// 输出“The status message is Not Found”</span><br></pre></td></tr></table></figure>
+<h6 id="404-“Not-Found”-元组把一个-Int-值和一个-String-值组合起来表示-HTTP-状态码的两个部分：一个数字和一个人类可读的描述。这个元组可以被描述为“一个类型为-Int-String-的元组”。"><a href="#404-“Not-Found”-元组把一个-Int-值和一个-String-值组合起来表示-HTTP-状态码的两个部分：一个数字和一个人类可读的描述。这个元组可以被描述为“一个类型为-Int-String-的元组”。" class="headerlink" title="(404, “Not Found”) 元组把一个 Int 值和一个 String 值组合起来表示 HTTP 状态码的两个部分：一个数字和一个人类可读的描述。这个元组可以被描述为“一个类型为 (Int, String) 的元组”。"></a>(404, “Not Found”) 元组把一个 Int 值和一个 String 值组合起来表示 HTTP 状态码的两个部分：一个数字和一个人类可读的描述。这个元组可以被描述为“一个类型为 (Int, String) 的元组”。</h6><h4 id="类型安全"><a href="#类型安全" class="headerlink" title="类型安全"></a>类型安全</h4><h6 id="Swift-是一门类型安全的语言，这意味着-Swift-可以让你清楚地知道值的类型。如果你的代码需要一个-String-，类型安全会阻止你不小心传入一个-Int-。而在OC中则不然。"><a href="#Swift-是一门类型安全的语言，这意味着-Swift-可以让你清楚地知道值的类型。如果你的代码需要一个-String-，类型安全会阻止你不小心传入一个-Int-。而在OC中则不然。" class="headerlink" title="Swift 是一门类型安全的语言，这意味着 Swift 可以让你清楚地知道值的类型。如果你的代码需要一个 String ，类型安全会阻止你不小心传入一个 Int 。而在OC中则不然。"></a>Swift 是一门类型安全的语言，这意味着 Swift 可以让你清楚地知道值的类型。如果你的代码需要一个 String ，类型安全会阻止你不小心传入一个 Int 。而在OC中则不然。</h6><h4 id="常量-amp-变量"><a href="#常量-amp-变量" class="headerlink" title="常量&amp;变量"></a>常量&amp;变量</h4><blockquote>
+<p>   var - 声明变量。<br>   let - 声明变量。  </p>
+</blockquote>
+<h4 id="类型标注"><a href="#类型标注" class="headerlink" title="类型标注"></a>类型标注</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">var welcomeMessage: String = <span class="string">"hello world!"</span>;</span><br><span class="line">var welcomeMessage = <span class="string">"hello world!"</span>;</span><br></pre></td></tr></table></figure>
+<h6 id="声明一个类型为-String-，名字为-welcomeMessage-的变量。"><a href="#声明一个类型为-String-，名字为-welcomeMessage-的变量。" class="headerlink" title="声明一个类型为 String ，名字为 welcomeMessage 的变量。"></a>声明一个类型为 String ，名字为 welcomeMessage 的变量。</h6><blockquote>
+<p>如果你在声明常量或者变量的时候赋了一个初始值，Swift 可以推断出这个常量或者变量的类型。  </p>
+</blockquote>
+<h4 id="常量和变量的命名"><a href="#常量和变量的命名" class="headerlink" title="常量和变量的命名"></a>常量和变量的命名</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">var x = 0.0, y = 0.0;</span><br><span class="line"><span class="built_in">let</span> z = 0.0;</span><br><span class="line"><span class="built_in">let</span> 你好 = <span class="string">"hello"</span>;</span><br><span class="line"><span class="built_in">let</span> 🐶🐮 = <span class="string">"emoj-dog&amp;cat"</span>;</span><br></pre></td></tr></table></figure>
+<h6 id="上面例子可以看出，常量和变量名可以包含任何字符，包括-Unicode-字符。"><a href="#上面例子可以看出，常量和变量名可以包含任何字符，包括-Unicode-字符。" class="headerlink" title="上面例子可以看出，常量和变量名可以包含任何字符，包括 Unicode 字符。"></a>上面例子可以看出，常量和变量名可以包含任何字符，包括 Unicode 字符。</h6><h4 id="输出常量和变量"><a href="#输出常量和变量" class="headerlink" title="输出常量和变量"></a>输出常量和变量</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//swift</span><br><span class="line">// 输出“The current value of friendlyWelcome is hello world!”</span><br><span class="line"><span class="built_in">print</span>(<span class="string">"The current value of welcomeMessage is \(welcomeMessage)"</span>)</span><br><span class="line">//iOS</span><br><span class="line">NSLog(<span class="string">"%@"</span>, welcomeMessage);</span><br></pre></td></tr></table></figure>
+<h4 id="可选类型-nil-强制解析"><a href="#可选类型-nil-强制解析" class="headerlink" title="可选类型 | nil | 强制解析"></a>可选类型 | nil | 强制解析</h4><h6 id="使用可选类型（optionals）来处理值可能缺失的情况。可选类型表示两种可能：-或者有值，-你可以解析可选类型访问这个值，-或者根本没有值。"><a href="#使用可选类型（optionals）来处理值可能缺失的情况。可选类型表示两种可能：-或者有值，-你可以解析可选类型访问这个值，-或者根本没有值。" class="headerlink" title="使用可选类型（optionals）来处理值可能缺失的情况。可选类型表示两种可能： 或者有值， 你可以解析可选类型访问这个值， 或者根本没有值。"></a>使用可选类型（optionals）来处理值可能缺失的情况。可选类型表示两种可能： 或者有值， 你可以解析可选类型访问这个值， 或者根本没有值。</h6><blockquote>
+<p>注意  </p>
+<p>C 和 Objective-C 中并没有可选类型这个概念。最接近的是 Objective-C 中的一个特性，一个方法要不返回一个对象要不返回 nil，nil 表示“缺少一个合法的对象”。然而，这只对对象起作用——对于结构体，基本的 C 类型或者枚举类型不起作用。对于这些类型，Objective-C 方法一般会返回一个特殊值（比如 NSNotFound）来暗示值缺失。这种方法假设方法的调用者知道并记得对特殊值进行判断。然而，Swift 的可选类型可以让你暗示任意类型的值缺失，并不需要一个特殊值。</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">let</span> possibleNumber = <span class="string">"123"</span></span><br><span class="line"><span class="built_in">let</span> convertedNumber = Int(possibleNumber)</span><br><span class="line">// convertedNumber 被推测为类型 <span class="string">"Int?"</span>， 或者类型 <span class="string">"optional Int"</span></span><br></pre></td></tr></table></figure>
+<h6 id="因为该构造器可能会失败，所以它返回一个可选类型（optional）Int，而不是一个-Int。"><a href="#因为该构造器可能会失败，所以它返回一个可选类型（optional）Int，而不是一个-Int。" class="headerlink" title="因为该构造器可能会失败，所以它返回一个可选类型（optional）Int，而不是一个 Int。"></a>因为该构造器可能会失败，所以它返回一个可选类型（optional）Int，而不是一个 Int。</h6><h6 id="你可以给可选变量赋值为-nil-来表示它没有值："><a href="#你可以给可选变量赋值为-nil-来表示它没有值：" class="headerlink" title="你可以给可选变量赋值为 nil 来表示它没有值："></a>你可以给可选变量赋值为 nil 来表示它没有值：</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">var serverResponseCode: Int? = 404</span><br><span class="line">// serverResponseCode 包含一个可选的 Int 值 404</span><br><span class="line">serverResponseCode = nil</span><br><span class="line">// serverResponseCode 现在不包含值</span><br><span class="line">var surveyAnswer: String?</span><br><span class="line">// surveyAnswer 被自动设置为 nil</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意  </p>
+<p>nil 不能用于非可选的常量和变量。如果你的代码中有常量或者变量需要处理值缺失的情况，请把它们声明成对应的可选类型。</p>
+<p>Swift 的 nil 和 Objective-C 中的 nil 并不一样。在 Objective-C 中，nil 是一个指向不存在对象的指针。在 Swift 中，nil 不是指针——它是一个确定的值，用来表示值缺失。任何类型的可选状态都可以被设置为 nil，不只是对象类型。</p>
+</blockquote>
+<p><img src="/2019/05/21/Swift学习笔记-一/nonoptionalvalueError.jpg" alt></p>
+<h5 id="可选绑定"><a href="#可选绑定" class="headerlink" title="可选绑定"></a>可选绑定</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">//如果 Int(possibleNumber) 返回的可选 Int 包含一个值，创建一个叫做 actualNumber 的新常量并将可选包含的值赋给它。</span><br><span class="line"><span class="keyword">if</span> <span class="built_in">let</span> actualNumber = Int(possibleNumber) &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"\'\(possibleNumber)\' has an integer value of \(actualNumber)"</span>)</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"\'\(possibleNumber)\' could not be converted to an integer"</span>)</span><br><span class="line">&#125;</span><br><span class="line">// 输出“<span class="string">'123'</span> has an <span class="built_in">integer</span> value of 123”</span><br></pre></td></tr></table></figure>
+<h5 id="强制解析"><a href="#强制解析" class="headerlink" title="强制解析"></a>强制解析</h5><h6 id="有时候在程序架构中，第一次被赋值之后，可以确定一个可选类型总会有值。在这种情况下，每次都要判断和解析可选值是非常低效的，因为可以确定它总会有值。"><a href="#有时候在程序架构中，第一次被赋值之后，可以确定一个可选类型总会有值。在这种情况下，每次都要判断和解析可选值是非常低效的，因为可以确定它总会有值。" class="headerlink" title="有时候在程序架构中，第一次被赋值之后，可以确定一个可选类型总会有值。在这种情况下，每次都要判断和解析可选值是非常低效的，因为可以确定它总会有值。"></a>有时候在程序架构中，第一次被赋值之后，可以确定一个可选类型总会有值。在这种情况下，每次都要判断和解析可选值是非常低效的，因为可以确定它总会有值。</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">let</span> possibleString: String? = <span class="string">"An optional string."</span></span><br><span class="line"><span class="built_in">let</span> forcedString: String = possibleString! // 需要感叹号来获取值</span><br><span class="line"></span><br><span class="line"><span class="built_in">let</span> assumedString: String! = <span class="string">"An implicitly unwrapped optional string."</span></span><br><span class="line"><span class="built_in">let</span> implicitString: String = assumedString  // 不需要感叹号</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意  </p>
+<p>如果你在隐式解析可选类型没有值的时候尝试取值，会触发运行时错误。和你在没有值的普通可选类型后面加一个惊叹号一样。</p>
+</blockquote>
+<hr>
+<h2 id="基本运算符"><a href="#基本运算符" class="headerlink" title="基本运算符"></a>基本运算符</h2><blockquote>
+<p>这里只介绍OC中没有的运算符</p>
+</blockquote>
+<h4 id="区间运算符"><a href="#区间运算符" class="headerlink" title="区间运算符"></a>区间运算符</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">//[a,b] a&lt; b</span><br><span class="line">(a...b)</span><br><span class="line">//[a,b) a&lt;b</span><br><span class="line">(a..&lt;b)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> index <span class="keyword">in</span> 1...5 &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"\(index) * 5 = \(index * 5)"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="运算符重载（略）"><a href="#运算符重载（略）" class="headerlink" title="运算符重载（略）"></a>运算符重载（略）</h4><p>##字符串和字符</p>
+<h5 id="Swift-的-String-类型与-Foundation-NSString-类进行了无缝桥接。Foundation-还对-String-进行扩展使其可以访问-NSString-类型中定义的方法。这意味着调用那些-NSString-的方法，你无需进行任何类型转换。"><a href="#Swift-的-String-类型与-Foundation-NSString-类进行了无缝桥接。Foundation-还对-String-进行扩展使其可以访问-NSString-类型中定义的方法。这意味着调用那些-NSString-的方法，你无需进行任何类型转换。" class="headerlink" title="Swift 的 String 类型与 Foundation NSString 类进行了无缝桥接。Foundation 还对 String 进行扩展使其可以访问 NSString 类型中定义的方法。这意味着调用那些 NSString 的方法，你无需进行任何类型转换。"></a>Swift 的 String 类型与 Foundation NSString 类进行了无缝桥接。Foundation 还对 String 进行扩展使其可以访问 NSString 类型中定义的方法。这意味着调用那些 NSString 的方法，你无需进行任何类型转换。</h5><h4 id="操作"><a href="#操作" class="headerlink" title="操作"></a>操作</h4><h6 id="增删改、下标访问等"><a href="#增删改、下标访问等" class="headerlink" title="增删改、下标访问等"></a>增删改、下标访问等</h6><h4 id="编码方式"><a href="#编码方式" class="headerlink" title="编码方式"></a>编码方式</h4><h5 id="Objective-C（NSString）"><a href="#Objective-C（NSString）" class="headerlink" title="Objective-C（NSString）"></a>Objective-C（NSString）</h5><h6 id="NSString对象是用-UTF-16-编码的码元组成的数组。相应地，length-方法的返回值也是字符串包含的码元个数（而不是字符个数）。"><a href="#NSString对象是用-UTF-16-编码的码元组成的数组。相应地，length-方法的返回值也是字符串包含的码元个数（而不是字符个数）。" class="headerlink" title="NSString对象是用 UTF-16 编码的码元组成的数组。相应地，length 方法的返回值也是字符串包含的码元个数（而不是字符个数）。"></a>NSString对象是用 UTF-16 编码的码元组成的数组。相应地，length 方法的返回值也是字符串包含的码元个数（而不是字符个数）。</h6><h5 id="Swift（String）"><a href="#Swift（String）" class="headerlink" title="Swift（String）"></a>Swift（String）</h5><h6 id="每一个字符串都是由编码无关的-Unicode-字符组成。Swift-中通过多种-“View”-来区分处理字符串的方式，UTF8View-让你以-UTF-8-编码的方式来处理字符串，而-CharacterView-则让你以字符为单位处理字符串而不必考虑编码的问题。"><a href="#每一个字符串都是由编码无关的-Unicode-字符组成。Swift-中通过多种-“View”-来区分处理字符串的方式，UTF8View-让你以-UTF-8-编码的方式来处理字符串，而-CharacterView-则让你以字符为单位处理字符串而不必考虑编码的问题。" class="headerlink" title="每一个字符串都是由编码无关的 Unicode 字符组成。Swift 中通过多种 “View” 来区分处理字符串的方式，UTF8View 让你以 UTF-8 编码的方式来处理字符串，而 CharacterView 则让你以字符为单位处理字符串而不必考虑编码的问题。"></a>每一个字符串都是由编码无关的 Unicode 字符组成。Swift 中通过多种 “View” 来区分处理字符串的方式，UTF8View 让你以 UTF-8 编码的方式来处理字符串，而 CharacterView 则让你以字符为单位处理字符串而不必考虑编码的问题。</h6><p><img src="/2019/05/21/Swift学习笔记-一/uft-8_print.jpg" alt></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> codeUnit <span class="keyword">in</span> dogString.utf8 &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"\(codeUnit) "</span>, terminator: <span class="string">""</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">print</span>(<span class="string">""</span>)</span><br><span class="line">// 68 111 103 226 128 188 240 159 144 182</span><br></pre></td></tr></table></figure>
+<p><img src="/2019/05/21/Swift学习笔记-一/uft-16_print.jpg" alt></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> codeUnit <span class="keyword">in</span> dogString.utf16 &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"\(codeUnit) "</span>, terminator: <span class="string">""</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">print</span>(<span class="string">""</span>)</span><br><span class="line">// 68 111 103 8252 55357 56374</span><br></pre></td></tr></table></figure>
+<h2 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h2><h4 id="Swift-语言中的-Arrays、Sets-和-Dictionaries-中存储的数据值类型必须明确，即被现实为泛型集合。"><a href="#Swift-语言中的-Arrays、Sets-和-Dictionaries-中存储的数据值类型必须明确，即被现实为泛型集合。" class="headerlink" title="Swift 语言中的 Arrays、Sets 和 Dictionaries 中存储的数据值类型必须明确，即被现实为泛型集合。"></a>Swift 语言中的 Arrays、Sets 和 Dictionaries 中存储的数据值类型必须明确，即被现实为泛型集合。</h4><h3 id="数组-Arrays"><a href="#数组-Arrays" class="headerlink" title="数组(Arrays)"></a>数组(Arrays)</h3><h5 id="创建数组"><a href="#创建数组" class="headerlink" title="创建数组"></a>创建数组</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">//swift </span><br><span class="line">var shoppingList = [String]()</span><br><span class="line">var shoppingList: [String] = [<span class="string">"Eggs"</span>, <span class="string">"Milk"</span>]</span><br><span class="line">//...其他方法</span><br><span class="line">//OC</span><br><span class="line">NSArray &lt;NSString *&gt; *shoppingList = @[@<span class="string">"Eggs"</span>, @<span class="string">"Milk"</span>];</span><br></pre></td></tr></table></figure>
+<h5 id="修改数组"><a href="#修改数组" class="headerlink" title="修改数组"></a>修改数组</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">//添加元素</span><br><span class="line">//swift</span><br><span class="line">shoppingList.insert(<span class="string">"Maple Syrup"</span>, at: 0)</span><br><span class="line">shoppingList.append(<span class="string">"Flour"</span>)</span><br><span class="line">//OC</span><br><span class="line">[shoppingList addObject:@<span class="string">"Flour"</span>];</span><br><span class="line">[shoppingList addObject:@<span class="string">"Flour"</span> atIndex:0];</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//添加数组</span><br><span class="line">//swift</span><br><span class="line">shoppingList += [<span class="string">"Chocolate Spread"</span>, <span class="string">"Cheese"</span>, <span class="string">"Butter"</span>];</span><br><span class="line">//OC</span><br><span class="line">[shoppingList addObjectFromArray:[<span class="string">"Chocolate Spread"</span>, <span class="string">"Cheese"</span>, <span class="string">"Butter"</span>]];</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">//修改数组</span><br><span class="line">//swift</span><br><span class="line">shoppingList[0] = <span class="string">"Six eggs"</span></span><br><span class="line">shoppingList[4...6] = [<span class="string">"Bananas"</span>, <span class="string">"Apples"</span>]</span><br><span class="line">//OC</span><br><span class="line">shoppingList[0] = @<span class="string">"Six eggs"</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//移除元素</span><br><span class="line">//swift</span><br><span class="line">shoppingList.remove(at:0);</span><br><span class="line">//OC</span><br><span class="line">[shoppingList removeObjectAtIndex:0];</span><br></pre></td></tr></table></figure>
+<h5 id="数组遍历"><a href="#数组遍历" class="headerlink" title="数组遍历"></a>数组遍历</h5><h6 id="如果我们同时需要每个数据项的值和索引值，可以使用-enumerated-方法来进行数组遍历。enumerated-返回一个由每一个数据项索引值和数据值组成的元组。我们可以把这个元组分解成临时常量或者变量来进行遍历："><a href="#如果我们同时需要每个数据项的值和索引值，可以使用-enumerated-方法来进行数组遍历。enumerated-返回一个由每一个数据项索引值和数据值组成的元组。我们可以把这个元组分解成临时常量或者变量来进行遍历：" class="headerlink" title="如果我们同时需要每个数据项的值和索引值，可以使用 enumerated() 方法来进行数组遍历。enumerated() 返回一个由每一个数据项索引值和数据值组成的元组。我们可以把这个元组分解成临时常量或者变量来进行遍历："></a>如果我们同时需要每个数据项的值和索引值，可以使用 enumerated() 方法来进行数组遍历。enumerated() 返回一个由每一个数据项索引值和数据值组成的元组。我们可以把这个元组分解成临时常量或者变量来进行遍历：</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (index, value) <span class="keyword">in</span> shoppingList.<span class="function"><span class="title">enumerated</span></span>() &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"Item \(String(index + 1)): \(value)"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="集合-Sets"><a href="#集合-Sets" class="headerlink" title="集合(Sets)"></a>集合(Sets)</h3><h6 id="Q-集合和数组的区别？"><a href="#Q-集合和数组的区别？" class="headerlink" title="Q:集合和数组的区别？"></a>Q:集合和数组的区别？</h6><h5 id="集合（Set）用来存储相同类型并且没有确定顺序的值。当集合元素顺序不重要时或者希望确保每个元素只出现一次时可以使用集合而不是数组。"><a href="#集合（Set）用来存储相同类型并且没有确定顺序的值。当集合元素顺序不重要时或者希望确保每个元素只出现一次时可以使用集合而不是数组。" class="headerlink" title="集合（Set）用来存储相同类型并且没有确定顺序的值。当集合元素顺序不重要时或者希望确保每个元素只出现一次时可以使用集合而不是数组。"></a>集合（Set）用来存储相同类型并且没有确定顺序的值。当集合元素顺序不重要时或者希望确保每个元素只出现一次时可以使用集合而不是数组。</h5><h5 id="存储在集合中的类型，必须是可哈希化的。遵循协议Hashable。"><a href="#存储在集合中的类型，必须是可哈希化的。遵循协议Hashable。" class="headerlink" title="存储在集合中的类型，必须是可哈希化的。遵循协议Hashable。"></a>存储在集合中的类型，必须是可哈希化的。遵循协议Hashable。</h5><h5 id="集合操作"><a href="#集合操作" class="headerlink" title="集合操作"></a>集合操作</h5><p><img src="/2019/05/21/Swift学习笔记-一/set_operation.png" alt></p>
+<blockquote>
+<p>使用 intersection(<em>:) 方法根据两个集合中都包含的值创建的一个新的集合。<br>使用 symmetricDifference(</em>:) 方法根据在一个集合中但不在两个集合中的值创建一个新的集合。<br>使用 union(<em>:) 方法根据两个集合的值创建一个新的集合。<br>使用 subtracting(</em>:) 方法根据不在该集合中的值创建一个新的集合。</p>
+</blockquote>
+<h5 id="集合成员关系和相等"><a href="#集合成员关系和相等" class="headerlink" title="集合成员关系和相等"></a>集合成员关系和相等</h5><p>略</p>
+<h3 id="字典"><a href="#字典" class="headerlink" title="字典"></a>字典</h3><h5 id="Swift-的字典使用-Dictionary-lt-Key-Value-gt-定义，其中-Key-是字典中键的数据类型，Value-是字典中对应于这些键所存储值的数据类型。"><a href="#Swift-的字典使用-Dictionary-lt-Key-Value-gt-定义，其中-Key-是字典中键的数据类型，Value-是字典中对应于这些键所存储值的数据类型。" class="headerlink" title="Swift 的字典使用 Dictionary&lt;Key, Value&gt; 定义，其中 Key 是字典中键的数据类型，Value 是字典中对应于这些键所存储值的数据类型。"></a>Swift 的字典使用 Dictionary&lt;Key, Value&gt; 定义，其中 Key 是字典中键的数据类型，Value 是字典中对应于这些键所存储值的数据类型。</h5><blockquote>
+<p>一个字典的 Key 类型必须遵循 Hashable 协议，就像 Set 的值类型。</p>
+<p>Objective-C中NSDictionary的key必须是字符串。<br>Objective-C中NSDictionary对存储的Value类型一致性没有要求。但只能存储对象。</p>
+</blockquote>
+<h5 id="字典创建"><a href="#字典创建" class="headerlink" title="字典创建"></a>字典创建</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//swift</span><br><span class="line">var namesOfIntegers = [Int: String]()</span><br><span class="line">// namesOfIntegers 是一个空的 [Int: String] 字典</span><br><span class="line">//OC</span><br><span class="line">NSDictionary  *namesOfIntegers = [NSDictionary dictionary];</span><br></pre></td></tr></table></figure>
+<h5 id="访问-amp-修改字典"><a href="#访问-amp-修改字典" class="headerlink" title="访问&amp;修改字典"></a>访问&amp;修改字典</h5><h6 id="基本一致"><a href="#基本一致" class="headerlink" title="基本一致"></a>基本一致</h6><h5 id="字典遍历"><a href="#字典遍历" class="headerlink" title="字典遍历"></a>字典遍历</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">//swift</span><br><span class="line"><span class="keyword">for</span> (key, value) <span class="keyword">in</span> namesOfIntegers &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"\(key): \(value)"</span>)</span><br><span class="line">&#125;</span><br><span class="line">//OC</span><br><span class="line"><span class="keyword">for</span> (key <span class="keyword">in</span> namesOfIntegers.allKeys) &#123;</span><br><span class="line">	//key is NSString object</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (value <span class="keyword">in</span> namesOfIntegers.allValues) &#123;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="控制流"><a href="#控制流" class="headerlink" title="控制流"></a>控制流</h3>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jackthenoob.github.io/2019/05/21/iOS内存管理-AutoreleasePool/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="垂杨小梳雨">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lyddwn">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/21/iOS内存管理-AutoreleasePool/" itemprop="url">iOS内存管理-AutoreleasePool</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-21T11:15:26+08:00">
+                2019-05-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="待编写"><a href="#待编写" class="headerlink" title="待编写"></a>待编写</h3>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://jackthenoob.github.io/2019/05/21/Lighter-your-ViewController-打造轻量化ViewController/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -334,11 +787,11 @@
       
         
           
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h5 id="随着业务的不断迭代，一些较大的业务模块的ViewController变得极为臃肿，越来越难以维护。迫切的需要为ViewController瘦身了。"><a href="#随着业务的不断迭代，一些较大的业务模块的ViewController变得极为臃肿，越来越难以维护。迫切的需要为ViewController瘦身了。" class="headerlink" title="随着业务的不断迭代，一些较大的业务模块的ViewController变得极为臃肿，越来越难以维护。迫切的需要为ViewController瘦身了。"></a>随着业务的不断迭代，一些较大的业务模块的ViewController变得极为臃肿，越来越难以维护。迫切的需要为ViewController瘦身了。</h5><h3 id="Separate-out-UITableViewDataSource-and-UITableViewDelegate"><a href="#Separate-out-UITableViewDataSource-and-UITableViewDelegate" class="headerlink" title="Separate out UITableViewDataSource and UITableViewDelegate"></a>Separate out UITableViewDataSource and UITableViewDelegate</h3><h5 id="剥离DataSource和其他Protocols"><a href="#剥离DataSource和其他Protocols" class="headerlink" title="剥离DataSource和其他Protocols"></a>剥离DataSource和其他Protocols</h5><h5 id="这个方法最早见于objc-io上。将UITableViewDatasource相关的代码从ViewController中抽取并封装到其他类中。也相对提高重用性。"><a href="#这个方法最早见于objc-io上。将UITableViewDatasource相关的代码从ViewController中抽取并封装到其他类中。也相对提高重用性。" class="headerlink" title="这个方法最早见于objc.io上。将UITableViewDatasource相关的代码从ViewController中抽取并封装到其他类中。也相对提高重用性。"></a>这个方法最早见于objc.io上。将UITableViewDatasource相关的代码从ViewController中抽取并封装到其他类中。也相对提高重用性。</h5><h5 id="然后我在一个较大的业务中尝试使用了。感觉效果一般。"><a href="#然后我在一个较大的业务中尝试使用了。感觉效果一般。" class="headerlink" title="然后我在一个较大的业务中尝试使用了。感觉效果一般。"></a>然后我在一个较大的业务中尝试使用了。感觉效果一般。</h5><h5 id="示例工程中，有一个类PhotosViewController，里面原本有如下3个方法："><a href="#示例工程中，有一个类PhotosViewController，里面原本有如下3个方法：" class="headerlink" title="示例工程中，有一个类PhotosViewController，里面原本有如下3个方法："></a>示例工程中，有一个类PhotosViewController，里面原本有如下3个方法：</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pragma mark Pragma </span></span><br><span class="line">  </span><br><span class="line">- (Photo*)photoAtIndexPath:(NSIndexPath*)indexPath &#123; </span><br><span class="line">	<span class="built_in">return</span> photos[(NSUInteger)indexPath.row]; </span><br><span class="line">&#125; </span><br><span class="line">  </span><br><span class="line">- (NSInteger)tableView:(UITableView*)tableView </span><br><span class="line">numberOfRowsInSection:(NSInteger)section &#123; </span><br><span class="line">	<span class="built_in">return</span> photos.count; </span><br><span class="line">&#125; </span><br><span class="line">  </span><br><span class="line">- (UITableViewCell*)tableView:(UITableView*)tableView </span><br><span class="line">cellForRowAtIndexPath:(NSIndexPath*)indexPath &#123; </span><br><span class="line">	PhotoCell* cell = [tableView dequeueReusableCellWithIdentifier:PhotoCellIdentifier forIndexPath:indexPath]; </span><br><span class="line">	Photo* photo = [self photoAtIndexPath:indexPath]; </span><br><span class="line">	cell.label.text = photo.name; </span><br><span class="line">	<span class="built_in">return</span> cell; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h5 id="随着业务的不断迭代，一些较大的业务模块的ViewController变得极为臃肿，越来越难以维护。为ViewController瘦身变成的越来越迫切。"><a href="#随着业务的不断迭代，一些较大的业务模块的ViewController变得极为臃肿，越来越难以维护。为ViewController瘦身变成的越来越迫切。" class="headerlink" title="随着业务的不断迭代，一些较大的业务模块的ViewController变得极为臃肿，越来越难以维护。为ViewController瘦身变成的越来越迫切。"></a>随着业务的不断迭代，一些较大的业务模块的ViewController变得极为臃肿，越来越难以维护。为ViewController瘦身变成的越来越迫切。</h5><h5 id="提供一些思路供大家参考。"><a href="#提供一些思路供大家参考。" class="headerlink" title="提供一些思路供大家参考。"></a>提供一些思路供大家参考。</h5><h2 id="1-Separate-out-UITableViewDataSource-and-UITableViewDelegate"><a href="#1-Separate-out-UITableViewDataSource-and-UITableViewDelegate" class="headerlink" title="1.Separate out UITableViewDataSource and UITableViewDelegate"></a>1.Separate out UITableViewDataSource and UITableViewDelegate</h2><h5 id="剥离DataSource和其他Protocols"><a href="#剥离DataSource和其他Protocols" class="headerlink" title="剥离DataSource和其他Protocols"></a>剥离DataSource和其他Protocols</h5><h5 id="这个方法最早见于objc-io上。将UITableViewDatasource相关的代码从ViewController中抽取并封装到其他类中。也相对提高重用性。"><a href="#这个方法最早见于objc-io上。将UITableViewDatasource相关的代码从ViewController中抽取并封装到其他类中。也相对提高重用性。" class="headerlink" title="这个方法最早见于objc.io上。将UITableViewDatasource相关的代码从ViewController中抽取并封装到其他类中。也相对提高重用性。"></a>这个方法最早见于objc.io上。将UITableViewDatasource相关的代码从ViewController中抽取并封装到其他类中。也相对提高重用性。</h5><h5 id="然后我在一个较大的业务中尝试使用了。感觉效果一般。"><a href="#然后我在一个较大的业务中尝试使用了。感觉效果一般。" class="headerlink" title="然后我在一个较大的业务中尝试使用了。感觉效果一般。"></a>然后我在一个较大的业务中尝试使用了。感觉效果一般。</h5><h5 id="示例工程中，有一个类PhotosViewController，里面原本有如下3个方法："><a href="#示例工程中，有一个类PhotosViewController，里面原本有如下3个方法：" class="headerlink" title="示例工程中，有一个类PhotosViewController，里面原本有如下3个方法："></a>示例工程中，有一个类PhotosViewController，里面原本有如下3个方法：</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># pragma mark Pragma </span></span><br><span class="line">  </span><br><span class="line">- (Photo*)photoAtIndexPath:(NSIndexPath*)indexPath &#123; </span><br><span class="line">	<span class="built_in">return</span> photos[(NSUInteger)indexPath.row]; </span><br><span class="line">&#125; </span><br><span class="line">  </span><br><span class="line">- (NSInteger)tableView:(UITableView*)tableView </span><br><span class="line">numberOfRowsInSection:(NSInteger)section &#123; </span><br><span class="line">	<span class="built_in">return</span> photos.count; </span><br><span class="line">&#125; </span><br><span class="line">  </span><br><span class="line">- (UITableViewCell*)tableView:(UITableView*)tableView </span><br><span class="line">cellForRowAtIndexPath:(NSIndexPath*)indexPath &#123; </span><br><span class="line">	PhotoCell* cell = [tableView dequeueReusableCellWithIdentifier:PhotoCellIdentifier forIndexPath:indexPath]; </span><br><span class="line">	Photo* photo = [self photoAtIndexPath:indexPath]; </span><br><span class="line">	cell.label.text = photo.name; </span><br><span class="line">	<span class="built_in">return</span> cell; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h5 id="如下代码所示，这里通过一个block来配置UITableViewCell，当然，也可以使用delegate对UITableViewCell进行配置，这主要取决于开发者。"><a href="#如下代码所示，这里通过一个block来配置UITableViewCell，当然，也可以使用delegate对UITableViewCell进行配置，这主要取决于开发者。" class="headerlink" title="如下代码所示，这里通过一个block来配置UITableViewCell，当然，也可以使用delegate对UITableViewCell进行配置，这主要取决于开发者。"></a>如下代码所示，这里通过一个block来配置UITableViewCell，当然，也可以使用delegate对UITableViewCell进行配置，这主要取决于开发者。</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@implementation ArrayDataSource </span><br><span class="line">  </span><br><span class="line">- (id)itemAtIndexPath:(NSIndexPath*)indexPath &#123; </span><br><span class="line">	<span class="built_in">return</span> items[(NSUInteger)indexPath.row]; </span><br><span class="line">&#125; </span><br><span class="line">  </span><br><span class="line">- (NSInteger)tableView:(UITableView*)tableView </span><br><span class="line">numberOfRowsInSection:(NSInteger)section &#123; </span><br><span class="line">	<span class="built_in">return</span> items.count; </span><br><span class="line">&#125; </span><br><span class="line">  </span><br><span class="line">- (UITableViewCell*)tableView:(UITableView*)tableView </span><br><span class="line">cellForRowAtIndexPath:(NSIndexPath*)indexPath &#123; </span><br><span class="line">	id cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier forIndexPath:indexPath]; </span><br><span class="line">	id item = [self itemAtIndexPath:indexPath]; </span><br><span class="line">	configureCellBlock(cell,item); </span><br><span class="line">	<span class="built_in">return</span> cell; </span><br><span class="line">&#125; </span><br><span class="line">  </span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
 <h5 id="可以把ViewController中的那3个方法移除掉，并创建自定义类的一个示例对象，然后将其设置为table-view的data-source，如下代码所示。"><a href="#可以把ViewController中的那3个方法移除掉，并创建自定义类的一个示例对象，然后将其设置为table-view的data-source，如下代码所示。" class="headerlink" title="可以把ViewController中的那3个方法移除掉，并创建自定义类的一个示例对象，然后将其设置为table view的data source，如下代码所示。"></a>可以把ViewController中的那3个方法移除掉，并创建自定义类的一个示例对象，然后将其设置为table view的data source，如下代码所示。</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">&#123;</span><br><span class="line">	void (^configureCell)(PhotoCell*, Photo*) = ^(PhotoCell* cell, Photo* photo) &#123; </span><br><span class="line">		cell.label.text = photo.name; </span><br><span class="line">	&#125;; </span><br><span class="line">	photosArrayDataSource = [[ArrayDataSource alloc] initWithItems:photos </span><br><span class="line">	cellIdentifier:PhotoCellIdentifier </span><br><span class="line">	configureCellBlock:configureCell]; </span><br><span class="line">	self.tableView.dataSource = photosArrayDataSource; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="Category"><a href="#Category" class="headerlink" title="Category"></a>Category</h3><h5 id="大体思路：根据当前业务，将业务拆分为多个小模块。创建多个Category，每个Category处理自己业务模块逻辑。"><a href="#大体思路：根据当前业务，将业务拆分为多个小模块。创建多个Category，每个Category处理自己业务模块逻辑。" class="headerlink" title="大体思路：根据当前业务，将业务拆分为多个小模块。创建多个Category，每个Category处理自己业务模块逻辑。"></a>大体思路：根据当前业务，将业务拆分为多个小模块。创建多个Category，每个Category处理自己业务模块逻辑。</h5><h5 id="目录结构如下："><a href="#目录结构如下：" class="headerlink" title="目录结构如下："></a>目录结构如下：</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">OrderViewController.h</span><br><span class="line">OrderViewController.m</span><br><span class="line">OrderViewController+NetRequest.h</span><br><span class="line">OrderViewController+NetRequest.m</span><br><span class="line">OrderViewController+DataReport.h</span><br><span class="line">OrderViewController+DataReport.m</span><br><span class="line">OrderViewController+Address.h</span><br><span class="line">OrderViewController+Address.m</span><br><span class="line">OrderViewController+Shipping.h</span><br><span class="line">OrderViewController+Shipping.m</span><br><span class="line">OrderViewController+Invoice.h</span><br><span class="line">OrderViewController+Invoice.m</span><br><span class="line">OrderViewController+Wallet.h</span><br><span class="line">OrderViewController+Wallet.m</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-<h5 id="其实还是比较简单有效的方法。如果要说弊端，那最多可能稍微拖慢App加载速度吧。"><a href="#其实还是比较简单有效的方法。如果要说弊端，那最多可能稍微拖慢App加载速度吧。" class="headerlink" title="其实还是比较简单有效的方法。如果要说弊端，那最多可能稍微拖慢App加载速度吧。"></a>其实还是比较简单有效的方法。如果要说弊端，那最多可能稍微拖慢App加载速度吧。</h5><h3 id="模块化调用"><a href="#模块化调用" class="headerlink" title="模块化调用"></a>模块化调用</h3><h5 id="将一些业务逻辑处理封装到其他类中，由ViewController去调用这些类。即：不要在ViewController中做一些复杂的逻辑处理，由其他类代理处理"><a href="#将一些业务逻辑处理封装到其他类中，由ViewController去调用这些类。即：不要在ViewController中做一些复杂的逻辑处理，由其他类代理处理" class="headerlink" title="将一些业务逻辑处理封装到其他类中，由ViewController去调用这些类。即：不要在ViewController中做一些复杂的逻辑处理，由其他类代理处理"></a>将一些业务逻辑处理封装到其他类中，由ViewController去调用这些类。即：不要在ViewController中做一些复杂的逻辑处理，由其他类代理处理</h5><h4 id="比如："><a href="#比如：" class="headerlink" title="比如："></a>比如：</h4><ul>
+<h2 id="2-Category"><a href="#2-Category" class="headerlink" title="2.Category"></a>2.Category</h2><h5 id="大体思路：根据当前业务，将业务拆分为多个小模块。创建多个Category，每个Category处理自己业务模块逻辑。"><a href="#大体思路：根据当前业务，将业务拆分为多个小模块。创建多个Category，每个Category处理自己业务模块逻辑。" class="headerlink" title="大体思路：根据当前业务，将业务拆分为多个小模块。创建多个Category，每个Category处理自己业务模块逻辑。"></a>大体思路：根据当前业务，将业务拆分为多个小模块。创建多个Category，每个Category处理自己业务模块逻辑。</h5><h5 id="目录结构如下："><a href="#目录结构如下：" class="headerlink" title="目录结构如下："></a>目录结构如下：</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">OrderViewController.h</span><br><span class="line">OrderViewController.m</span><br><span class="line">OrderViewController+NetRequest.h</span><br><span class="line">OrderViewController+NetRequest.m</span><br><span class="line">OrderViewController+DataReport.h</span><br><span class="line">OrderViewController+DataReport.m</span><br><span class="line">OrderViewController+Address.h</span><br><span class="line">OrderViewController+Address.m</span><br><span class="line">OrderViewController+Shipping.h</span><br><span class="line">OrderViewController+Shipping.m</span><br><span class="line">OrderViewController+Invoice.h</span><br><span class="line">OrderViewController+Invoice.m</span><br><span class="line">OrderViewController+Wallet.h</span><br><span class="line">OrderViewController+Wallet.m</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<h5 id="上面目录结构是电商的订单提交页面，主体功能可以分为订单地址、配送信息、发票、钱包等业务场景，再将网络请求、数据上报等功能抽离到相应Category，实现代码分离。减少主ViewController大小。"><a href="#上面目录结构是电商的订单提交页面，主体功能可以分为订单地址、配送信息、发票、钱包等业务场景，再将网络请求、数据上报等功能抽离到相应Category，实现代码分离。减少主ViewController大小。" class="headerlink" title="上面目录结构是电商的订单提交页面，主体功能可以分为订单地址、配送信息、发票、钱包等业务场景，再将网络请求、数据上报等功能抽离到相应Category，实现代码分离。减少主ViewController大小。"></a>上面目录结构是电商的订单提交页面，主体功能可以分为订单地址、配送信息、发票、钱包等业务场景，再将网络请求、数据上报等功能抽离到相应Category，实现代码分离。减少主ViewController大小。</h5><h5 id="其实还是比较简单有效的方法。如果要说弊端，那最多可能稍微拖慢App加载速度吧。"><a href="#其实还是比较简单有效的方法。如果要说弊端，那最多可能稍微拖慢App加载速度吧。" class="headerlink" title="其实还是比较简单有效的方法。如果要说弊端，那最多可能稍微拖慢App加载速度吧。"></a>其实还是比较简单有效的方法。如果要说弊端，那最多可能稍微拖慢App加载速度吧。</h5><h2 id="3-模块化调用"><a href="#3-模块化调用" class="headerlink" title="3.模块化调用"></a>3.模块化调用</h2><h5 id="将一些业务逻辑处理封装到其他类中，由ViewController去调用这些类。即：不要在ViewController中做一些复杂的逻辑处理，由其他类代理处理"><a href="#将一些业务逻辑处理封装到其他类中，由ViewController去调用这些类。即：不要在ViewController中做一些复杂的逻辑处理，由其他类代理处理" class="headerlink" title="将一些业务逻辑处理封装到其他类中，由ViewController去调用这些类。即：不要在ViewController中做一些复杂的逻辑处理，由其他类代理处理"></a>将一些业务逻辑处理封装到其他类中，由ViewController去调用这些类。即：不要在ViewController中做一些复杂的逻辑处理，由其他类代理处理</h5><h4 id="比如："><a href="#比如：" class="headerlink" title="比如："></a>比如：</h4><ul>
 <li>业务Model自己逻辑自己处理。VC只负责调用。</li>
 <li>网络请求、数据处理服务创建相应Manager类处理。</li>
 <li>复杂的View结构通过添加子ViewController实现。</li>
@@ -728,7 +1181,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
