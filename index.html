@@ -263,6 +263,175 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jackthenoob.github.io/2019/05/23/iOS测试代码运行效率-diapatch-benchmark/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="垂杨小梳雨">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lyddwn">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/23/iOS测试代码运行效率-diapatch-benchmark/" itemprop="url">iOS测试代码运行效率-diapatch_benchmark</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-23T13:57:02+08:00">
+                2019-05-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在日常开发过程中，我们经常会遇到这样的疑问：</p>
+<blockquote>
+<p>这段代码相对效率是多少？方法A与方法B哪个更快？</p>
+</blockquote>
+<h4 id="打时间戳"><a href="#打时间戳" class="headerlink" title="打时间戳"></a>打时间戳</h4><p>逻辑很简单：代码运行前记录一次时间，运行后记录一次，然后比较时间差即可。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">CFTimeInterval startTime = CACurrentMediaTime();</span><br><span class="line"></span><br><span class="line">//your code here</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">CFTimeInterval endTime = CACurrentMediaTime();</span><br><span class="line">NSLog(@<span class="string">"Total Runtime: %g s"</span>, endTime - startTime);</span><br><span class="line">``` </span><br><span class="line"></span><br><span class="line"><span class="comment">#### diapatch_benchmark</span></span><br><span class="line">dispatch_benchmark 是 libdispatch (Grand Central Dispatch) 的一部分。但这个方法并没有被公开声明，所以你必须要自己声明：</span><br><span class="line"></span><br><span class="line">```bash</span><br><span class="line">extern uint64_t dispatch_benchmark(size_t count, void (^block)(void));</span><br></pre></td></tr></table></figure>
+<p>因为没有公开的函数定义， dispatch_benchmark 在 Xcode 中也没有公开的文档。但幸运的是有 man 页面</p>
+<p>dispatch_benchmark(3)</p>
+<blockquote>
+<p>The dispatch_benchmark function executes the given block multiple times according to the count variable and then returns the average number of nanoseconds per execution. This function is for debugging and performance analysis work. For the best results, pass a high count value to dispatch_benchmark.<br>Please look for inflection points with various data sets and keep the following facts in mind:</p>
+<ul>
+<li>Code bound by computational bandwidth may be inferred by proportional changes in performance as concurrency is increased.</li>
+<li>Code bound by memory bandwidth may be inferred by negligible changes in performance as concurrency is increased.</li>
+<li>Code bound by critical sections may be inferred by retrograde changes in performance as concurrency is increased.<ul>
+<li>Intentional: locks, mutexes, and condition variables.</li>
+<li>Accidental: unrelated and frequently modified data on the same cache-line.</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<h6 id="dispatch-benchmark是一个根据传入的count参数多次执行给定block然后返回平均执行时间（纳秒）的方法。这个方法用于调试和测试分析代码性能。为了获取跟好的效果，传入的一个较大的count值"><a href="#dispatch-benchmark是一个根据传入的count参数多次执行给定block然后返回平均执行时间（纳秒）的方法。这个方法用于调试和测试分析代码性能。为了获取跟好的效果，传入的一个较大的count值" class="headerlink" title="dispatch_benchmark是一个根据传入的count参数多次执行给定block然后返回平均执行时间（纳秒）的方法。这个方法用于调试和测试分析代码性能。为了获取跟好的效果，传入的一个较大的count值"></a>dispatch_benchmark是一个根据传入的count参数多次执行给定block然后返回平均执行时间（纳秒）的方法。这个方法用于调试和测试分析代码性能。为了获取跟好的效果，传入的一个较大的count值</h6><h5 id="使用Sample"><a href="#使用Sample" class="headerlink" title="使用Sample"></a>使用Sample</h5><p>对于iOS中NSMutableArray，它对首尾插入/删除有较高的效率，近乎常数。</p>
+<p>下面我们对比下，首尾删除与在中间删除有多少差距。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">//测试函数</span><br><span class="line">- (void)benchmark &#123;</span><br><span class="line">    </span><br><span class="line">    NSUInteger iterations = 100;</span><br><span class="line">    NSMutableArray *iterationArray = [NSMutableArray arrayWithArray:_testArray];</span><br><span class="line">    NSMutableArray *iterationArray2 = [NSMutableArray arrayWithArray:_testArray];;</span><br><span class="line">    </span><br><span class="line">    uint64_t t_0 = dispatch_benchmark(iterations, ^&#123;</span><br><span class="line">        <span class="keyword">for</span> (int i = 0; i &lt; self-&gt;_count; i ++) &#123;</span><br><span class="line">            NSUInteger index = iterationArray.count/2;</span><br><span class="line">            <span class="keyword">if</span> (index &lt; iterationArray.count) &#123;</span><br><span class="line">                [iterationArray removeObjectAtIndex:index];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    NSLog(@<span class="string">"Remove Array At Middle Avg. Runtime: %llu ms"</span>, t_0/1000);</span><br><span class="line">    uint64_t t_1 = dispatch_benchmark(iterations, ^&#123;</span><br><span class="line">        <span class="keyword">for</span> (int i = 0; i &lt; self-&gt;_count; i ++) &#123;</span><br><span class="line">            NSUInteger index = iterationArray2.count/2;</span><br><span class="line">            <span class="keyword">if</span> (index &lt; iterationArray2.count) &#123;</span><br><span class="line">                [iterationArray2 removeObjectAtIndex:0];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    NSLog(@<span class="string">"Remove Array From Begining Avg. Runtime: %llu ms"</span>, t_1/1000);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">//调用</span><br><span class="line">&#123;</span><br><span class="line">	_count = 200000;</span><br><span class="line">    _testArray = [NSMutableArray arrayWithCapacity:_count];</span><br><span class="line">    <span class="keyword">for</span> (int i = 0; i &lt; _count; i ++) &#123;</span><br><span class="line">        [_testArray addObject:@(i)];</span><br><span class="line">    &#125;</span><br><span class="line">    [self benchmark];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面代码可以看出，初始化了一个数量为200000的可变数组，分别在中间、首尾移除数组元素，执行100次。</p>
+<blockquote>
+<p>执行结果</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Remove Array At Middle Avg. Runtime: 21851 ms</span><br><span class="line">Remove Array From Begining Avg. Runtime: 1553 ms</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://jackthenoob.github.io/2019/05/23/Xcode开发效率-快捷键-代码块/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -357,7 +526,7 @@
         
           
             <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><blockquote>
-<p>程序员使用最多的还是键盘，我们可以通过快捷键的使用方便、快捷访问Xcode很多功能。从而提交开发效率。</p>
+<p>程序员使用最多的还是键盘，我们可以通过快捷键的使用来方便的、快捷的访问Xcode很多功能。从而提高开发效率。</p>
 </blockquote>
 <h2 id="Keys"><a href="#Keys" class="headerlink" title="Keys"></a>Keys</h2><ul>
 <li>Shift + Command + O（字母O，而非0）弹出快速查找文件窗口。 </li>
@@ -1653,7 +1822,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1675,7 +1844,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-count">21</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
