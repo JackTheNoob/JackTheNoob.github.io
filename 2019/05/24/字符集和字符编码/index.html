@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+<meta name="google-site-verification" content="H2oSN0uYOmfFvx5hCvt0zPYP4ekyAQlLKkExeaFjhrg">
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Charset,Encoding,utf-8,utf-16,utf-32,unicode,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言对于计算机来说，它无法处理文本，只能与0，1数字打交道。为了可以在计算机中用数字表示文本，我们指定了一个从字符到数字的映射。这个映射叫做编码(encoding)。反之，我们将计算机中数字解析显示为字符，成为解码(decoding)。  字符集（Charset）  是一个系统支持的所有抽象字符的集合。字符是各种文字和符号的总称，包括各国家文字、标点符号、图形符号、数字等。    *  字符编码（">
+<meta name="keywords" content="Charset,Encoding,utf-8,utf-16,utf-32,unicode">
+<meta property="og:type" content="article">
+<meta property="og:title" content="字符集和字符编码">
+<meta property="og:url" content="http://jackthenoob.github.io/2019/05/24/字符集和字符编码/index.html">
+<meta property="og:site_name" content="Lyddwn">
+<meta property="og:description" content="前言对于计算机来说，它无法处理文本，只能与0，1数字打交道。为了可以在计算机中用数字表示文本，我们指定了一个从字符到数字的映射。这个映射叫做编码(encoding)。反之，我们将计算机中数字解析显示为字符，成为解码(decoding)。  字符集（Charset）  是一个系统支持的所有抽象字符的集合。字符是各种文字和符号的总称，包括各国家文字、标点符号、图形符号、数字等。    *  字符编码（">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-05-27T06:54:29.686Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="字符集和字符编码">
+<meta name="twitter:description" content="前言对于计算机来说，它无法处理文本，只能与0，1数字打交道。为了可以在计算机中用数字表示文本，我们指定了一个从字符到数字的映射。这个映射叫做编码(encoding)。反之，我们将计算机中数字解析显示为字符，成为解码(decoding)。  字符集（Charset）  是一个系统支持的所有抽象字符的集合。字符是各种文字和符号的总称，包括各国家文字、标点符号、图形符号、数字等。    *  字符编码（">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://jackthenoob.github.io/2019/05/24/字符集和字符编码/">
+
+
+
+
+
+  <title>字符集和字符编码 | Lyddwn</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Lyddwn</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">生活不只是代码</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>
+            
+            Commonweal 404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jackthenoob.github.io/2019/05/24/字符集和字符编码/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="垂杨小梳雨">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lyddwn">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">字符集和字符编码</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-24T17:56:48+08:00">
+                2019-05-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Coding/" itemprop="url" rel="index">
+                    <span itemprop="name">Coding</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>对于计算机来说，它无法处理文本，只能与0，1数字打交道。为了可以在计算机中用数字表示文本，我们指定了一个从字符到数字的映射。这个映射叫做编码(encoding)。反之，我们将计算机中数字解析显示为字符，成为解码(decoding)。</p>
+<blockquote>
+<p>字符集（Charset） </p>
+<p>是一个系统支持的所有抽象字符的集合。字符是各种文字和符号的总称，包括各国家文字、标点符号、图形符号、数字等。  </p>
+</blockquote>
+<p>*</p>
+<blockquote>
+<p>字符编码（Character Encoding） </p>
+<p>是一套法则，将符号集合转换为计算机可以理解的数字。  </p>
+</blockquote>
+<hr>
+<h2 id="字符集"><a href="#字符集" class="headerlink" title="字符集"></a>字符集</h2><ul>
+<li>常见的字符集  </li>
+</ul>
+<blockquote>
+<p>ASCII<br>GB2312<br>GB18030<br>BIG5<br>Unicode  </p>
+</blockquote>
+<h3 id="ASCII"><a href="#ASCII" class="headerlink" title="ASCII"></a>ASCII</h3><p>ASCII（American Standard Code for Information Interchange，美国信息交换标准代码）是基于拉丁字母的一套电脑编码系统。它主要用于显示现代英语，而其扩展版本<a href="https://zh.wikipedia.org/wiki/EASCII" target="_blank" rel="noopener">EASCII</a>则可以可以部分支持其他西欧语言，并等同于国际标准<a href="https://zh.wikipedia.org/wiki/ISO/IEC_646" target="_blank" rel="noopener">ISO/IEC 646</a>。</p>
+<p>ASCII 码是 7 位的，它将英文字母，数字 0-9 以及一些标点符号和控制字符映射为 0-127 这些整型。</p>
+<p>ASCII的最大缺点是只能显示26个基本拉丁字母、阿拉伯数目字和英式标点符号，因此只能用于显示现代美国英语（而且在处理英语当中的外来词如naïve、café、élite等等时，所有重音符号都不得不去掉，即使这样做会违反拼写规则）。而EASCII虽然解决了部份西欧语言的显示问题，但对更多其他语言依然无能为力。因此现在的苹果电脑已经抛弃ASCII而转用<a href="https://zh.wikipedia.org/wiki/Unicode" target="_blank" rel="noopener">Unicode</a>。</p>
+<h3 id="GB2312"><a href="#GB2312" class="headerlink" title="GB2312"></a>GB2312</h3><p><a href="https://zh.wikipedia.org/wiki/GB_2312" target="_blank" rel="noopener">GB 2312</a> 或 GB 2312–80 是中华人民共和国国家标准简体中文字符集，全称《信息交换用汉字编码字符集·基本集》，通常簡稱GB，又稱GB0，由中国国家标准总局发布，1981年5月1日实施。GB 2312编码通行于中国大陆；新加坡等地也采用此编码。中国大陆几乎所有的中文系统和国际化的软件都支持GB 2312。</p>
+<p>GB 2312标准共收录6763个汉字，其中<a href="https://zh.wikipedia.org/wiki/常用字" target="_blank" rel="noopener">一级汉字</a>3755个，<a href="https://zh.wikipedia.org/wiki/次常用字" target="_blank" rel="noopener">二级汉字</a>3008个；同时收录了包括拉丁字母、希腊字母、日文平假名及片假名字母、俄语西里尔字母在内的682个字符。</p>
+<p>GB 2312的出现，基本满足了汉字的计算机处理需要，它所收录的汉字已经覆盖中国大陆99.75%的使用频率。但对于人名、古汉语等方面出现的罕用字和繁體字，GB 2312不能处理，因此后来<a href="https://zh.wikipedia.org/wiki/汉字内码扩展规范" target="_blank" rel="noopener">GBK</a>及<a href="https://zh.wikipedia.org/wiki/GB_18030" target="_blank" rel="noopener">GB 18030</a>汉字字符集相继出现以解決這些問題。</p>
+<h3 id="GB18030"><a href="#GB18030" class="headerlink" title="GB18030"></a>GB18030</h3><p><a href="https://zh.wikipedia.org/wiki/GB_18030" target="_blank" rel="noopener">GB 18030</a>，全称《信息技术　中文编码字符集》，是中华人民共和国国家标准所规定的变长多字节字符集。其对GB 2312-1980完全向后兼容，与GBK基本向后兼容，并支持Unicode（GB 13000）的所有码位。GB 18030共收录汉字70,244个。</p>
+<ul>
+<li>GB 18030主要有以下特点</li>
+</ul>
+<blockquote>
+<p>采用变长多字节编码，每个字可以由1个、2个或4个字节组成。<br>编码空间庞大，最多可定义161万个字元。<br>完全支持Unicode，无需动用造字区即可支持中国国內少数民族文字、中日韩和繁体汉字以及emoji等字符。  </p>
+</blockquote>
+<h3 id="BIG5"><a href="#BIG5" class="headerlink" title="BIG5"></a>BIG5</h3><p><a href="https://zh.wikipedia.org/wiki/大五碼" target="_blank" rel="noopener">Big5</a>，又称为大五码或五大码，是使用繁体中文（正体中文）社区中最常用的电脑汉字字符集标准，共收录13,060个汉字。</p>
+<p>中文码分为内码及交换码两类，Big5属中文内码，知名的中文交换码有CCCII、CNS11643。Big5虽普及于台湾、香港与澳门等繁体中文通行区，但长期以来并非当地的国家标准，而只是业界标准。倚天中文系统、Windows等主要系统的字符集都是以Big5为基准，但厂商又各自增加不同的造字与造字区，派生成多种不同版本。</p>
+<p>2003年，Big5被收录到CNS11643中文标准交换码的附录当中，取得了较正式的地位。这个最新版本被称为Big5-2003。</p>
+<blockquote>
+<p>不同国家、不同语言在网络上交流时，如果都实现类似GB2312/GB18030/BIG5的编码方案，各自出一套方案，相互不兼容，就非常容易出现乱码。</p>
+</blockquote>
+<h3 id="Unicode"><a href="#Unicode" class="headerlink" title="Unicode"></a>Unicode</h3><p>为了解决这个问题，<a href="https://zh.wikipedia.org/wiki/Unicode" target="_blank" rel="noopener">Unicode</a>（统一码、万国码、单一码、标准万国码）应运而生。Unicode为世界上几乎所有的书写系统里所使用的每一个字符或符号定义了一个唯一的数字，这个数字叫做码点（code points）。它使用4字节的数字来表达每个字母、符号，或者表意文字(ideograph)。</p>
+<p>最初，Unicode 编码是被设计为 16 位的，提供了 65,536 个字符的空间。当时人们认为这已经大到足够编码世界上现代文本里所有的文字和字符了。</p>
+<p>后来，考虑到要编码历史上的文字以及一些很少使用的日本汉字和中国汉字，Unicode 编码扩展到了 21 位（从 U+0000 到 U+10FFFF）。Unicode 不是 16 位的编码！它是 21 位的。这 21 位提供了 1,114,112 个码点，其中，只有大概 10% 正在使用，所以还有相当大的扩充空间。</p>
+<blockquote>
+<p>简单来说：Unicode是一个统一了地球上所有语言的字符集。</p>
+</blockquote>
+<h2 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h2><p>字符和码点之间的映射已经有了，但还需要定义另一种编码来确定码点在内存和硬盘中要如何表示。</p>
+<p>Unicode 标准为此定义了几种映射，叫做「Unicode 转换格式」（Unicode Transformation Formats，简称 UTF）。</p>
+<p>日常工作中，人们就直接把它们叫做「编码」—— 因为按照定义，如果是用 UTF 编码的，那么就要使用 Unicode，所以也就没必要明确区分这两个步骤了。</p>
+<h3 id="UTF-32"><a href="#UTF-32" class="headerlink" title="UTF-32"></a>UTF-32</h3><p>最清楚明了的一个 UTF 就是 UTF-32：它在每个码点上使用整 32 位。32 大于 21，因此每一个 UTF-32 值都可以直接表示对应的码点。</p>
+<p>尽管简单，UTF-32却几乎从来不在实际中使用，因为每个字符占用 4 字节太浪费空间了。比如：表述一个字母A（只需要7位一个字节），前3字节空间被浪费了。</p>
+<h3 id="UTF-16"><a href="#UTF-16" class="headerlink" title="UTF-16"></a>UTF-16</h3><p>尽管有Unicode字符非常多，但是实际上大多数人不会用到超过前65535个以外的字符。因此，就有了另外一种Unicode编码方式，叫做UTF-16。</p>
+<p>UTF-16 本身是一种长度可变的编码。基本多文种平面（BMP）中的每一个码点都直接与一个码元相映射。鉴于 BMP 几乎囊括了所有常见字符，UTF-16 一般只需要 UTF-32 一半的空间。其它平面里很少使用的码点都是用两个 16 位的码元来编码的，这两个合起来表示一个码点的码元就叫做代理对（surrogate pair）。</p>
+<p>和所有多字节长度的编码系统一样，UTF-16（以及 UTF-32）还得解决<a href="https://en.wikipedia.org/wiki/Endianness" target="_blank" rel="noopener">字节顺序</a>的问题。在内存里存储字符串时，大多数实现方式自然都采用自己运行平台的 CPU 的字节序（endianness）；而在硬盘里存储或者通过网络传输字符串时，UTF-16 允许在字符串的开头插入一个「<a href="https://en.wikipedia.org/wiki/Byte_order_mark" target="_blank" rel="noopener">字节顺序标记</a>」（Byte Order Mask，简称 BOM）。</p>
+<p>字节顺序标记是一个值为 U+FEFF 的码元，通过检查文件的头两个字节，解码器就可以识别出其字节顺序。字节顺序标记不是必须的，Unicode 标准把高字节顺序（big-endian byte order）定为默认情况。UTF-16 需要指明字节顺序，这也是为什么 UTF-16 在文件格式和网络传输方面不受欢迎的一个原因，不过微软和苹果都在自己的操作系统内部使用它。</p>
+<h3 id="UTF-8"><a href="#UTF-8" class="headerlink" title="UTF-8"></a>UTF-8</h3><p>UTF-16 还是在常用的英文和西欧文本上浪费了大量的空间：每个 16 位的码点的高 8 位的值都会是 0。</p>
+<p>UTF-8（8-bit Unicode Transformation Format）是一种针对Unicode的可变长度字符编码。它可以用来表示Unicode标准中的任何字符，且其编码中的第一个字节仍与ASCII兼容，这使得原来处理ASCII字符的软件无须或只须做少部份修改，即可继续使用。因此，它逐渐成为电子邮件、网页及其他存储或传送文字的应用中，优先采用的编码。互联网工程工作小组（IETF）要求所有互联网协议都必须支持UTF-8编码。</p>
+<p>UTF-8使用一至四个字节为每个字符编码：</p>
+<ul>
+<li>128个US-ASCII字符只需一个字节编码（Unicode范围由U+0000至U+007F）。  </li>
+<li>带有附加符号的拉丁文、希腊文、西里尔字母、亚美尼亚语、希伯来文、阿拉伯文、叙利亚文及它拿字母则需要二个字节编码（Unicode范围由U+0080至U+07FF）。  </li>
+<li>其他基本多文种平面（BMP）中的字符（这包含了大部分常用字）使用三个字节编码。    </li>
+<li>其他极少使用的Unicode辅助平面的字符使用四字节编码。</li>
+</ul>
+<hr>
+<h2 id="iOS相关"><a href="#iOS相关" class="headerlink" title="iOS相关"></a>iOS相关</h2><h3 id="NSString和Unicode"><a href="#NSString和Unicode" class="headerlink" title="NSString和Unicode"></a>NSString和Unicode</h3><p>NSString文档</p>
+<blockquote>
+<p>An NSString object encodes a Unicode-compliant text string, represented as a sequence of UTF–16 code units. All lengths, character indexes, and ranges are expressed in terms of UTF–16 code units, with index values starting at 0.  The length property of an NSString returns the number of UTF-16 code units in an NSString, and the characterAtIndex: method retrieves a specific UTF-16 code unit. These two “primitive” methods provide basic access to the contents of a string object.</p>
+</blockquote>
+<p>我们已经了解了 Unicode 是一种 21 位的编码方案。</p>
+<p>就想文档所说，NSString 代表的是用 UTF-16 编码的文本，长度、索引和范围都基于 UTF-16 的码元。除非你知道字符串的内容，或者你提前有所防范，不然 NSString 类里的方法都是基于上述概念的，无法给你提供可靠的信息。每当文档提及「字符」（character）或者 unichar 时，它其实都说的是码元。</p>
+<p>NSString 对象代表的是用 UTF-16 编码的码元组成的数组。相应地，length 方法的返回值也是字符串包含的码元个数（而不是字符个数）。</p>
+<p><font color="#000000" size="5">length </font> </p>
+<blockquote>
+<p>The number of UTF-16 code units in the receiver.  </p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Declaration</span><br><span class="line">@property(<span class="built_in">readonly</span>) NSUInteger length;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Discussion  </p>
+<p>This number includes the individual characters of composed character sequences, so you cannot use this property to determine if a string will be visible when printed or how long it will appear.  </p>
+</blockquote>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>文本很复杂，程序员还是需要了解其中的运作机制以便能正确处理它。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Charset/" rel="tag"># Charset</a>
+          
+            <a href="/tags/Encoding/" rel="tag"># Encoding</a>
+          
+            <a href="/tags/utf-8/" rel="tag"># utf-8</a>
+          
+            <a href="/tags/utf-16/" rel="tag"># utf-16</a>
+          
+            <a href="/tags/utf-32/" rel="tag"># utf-32</a>
+          
+            <a href="/tags/unicode/" rel="tag"># unicode</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/05/23/iOS测试代码运行效率-diapatch-benchmark/" rel="next" title="iOS测试代码运行效率-diapatch_benchmark">
+                <i class="fa fa-chevron-left"></i> iOS测试代码运行效率-diapatch_benchmark
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">垂杨小梳雨</p>
+              <p class="site-description motion-element" itemprop="description">None</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">27</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#字符集"><span class="nav-number">2.</span> <span class="nav-text">字符集</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ASCII"><span class="nav-number">2.1.</span> <span class="nav-text">ASCII</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GB2312"><span class="nav-number">2.2.</span> <span class="nav-text">GB2312</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GB18030"><span class="nav-number">2.3.</span> <span class="nav-text">GB18030</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BIG5"><span class="nav-number">2.4.</span> <span class="nav-text">BIG5</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Unicode"><span class="nav-number">2.5.</span> <span class="nav-text">Unicode</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编码"><span class="nav-number">3.</span> <span class="nav-text">编码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UTF-32"><span class="nav-number">3.1.</span> <span class="nav-text">UTF-32</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UTF-16"><span class="nav-number">3.2.</span> <span class="nav-text">UTF-16</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UTF-8"><span class="nav-number">3.3.</span> <span class="nav-text">UTF-8</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#iOS相关"><span class="nav-number">4.</span> <span class="nav-text">iOS相关</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#NSString和Unicode"><span class="nav-number">4.1.</span> <span class="nav-text">NSString和Unicode</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结语"><span class="nav-number">5.</span> <span class="nav-text">结语</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">垂杨小梳雨</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

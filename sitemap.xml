@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://jackthenoob.github.io/2019/05/20/iOS%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86-ARC/</loc>
+    
+    <lastmod>2019-05-27T07:01:25.100Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://jackthenoob.github.io/2019/05/24/%E5%AD%97%E7%AC%A6%E9%9B%86%E5%92%8C%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81/</loc>
+    
+    <lastmod>2019-05-27T06:54:29.686Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://jackthenoob.github.io/2019/05/23/iOS%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81%E8%BF%90%E8%A1%8C%E6%95%88%E7%8E%87-diapatch-benchmark/</loc>
     
     <lastmod>2019-05-23T06:36:26.880Z</lastmod>
@@ -47,13 +61,6 @@
     <loc>http://jackthenoob.github.io/2019/05/21/iOS%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86-AutoreleasePool/</loc>
     
     <lastmod>2019-05-23T02:50:06.642Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://jackthenoob.github.io/2019/05/20/iOS%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86-ARC/</loc>
-    
-    <lastmod>2019-05-23T02:49:21.059Z</lastmod>
     
   </url>
   
