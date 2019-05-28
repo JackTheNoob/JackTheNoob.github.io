@@ -79,20 +79,20 @@
 
 
 
-<meta name="description" content="前言我们编写的Objective-C代码，底层通过C/C++代码实现。  Objective-C -&amp;gt; C/C++ -&amp;gt; 汇编语言 -&amp;gt; 机器语言  源码探究ISA我们通过以下命令，将.m文件转化为C/C++代码。 1clang -rewrite-objc **.m 可以获取 **.cpp文件。 在7700多行，可以获取如下结构体 123struct NSObject_IMPL">
+<meta name="description" content="前言我们编写的Objective-C代码，底层通过C/C++代码实现。  Objective-C -&amp;gt; C/C++ -&amp;gt; 汇编语言 -&amp;gt; 机器语言  那么一个Objective-C类、对象是如何通过C/C++实现、储存的呢？ 源码探究ISA我们通过以下命令，将.m文件转化为C/C++代码。 1clang -rewrite-objc **.m 可以获取 **.cpp文件。 在770">
 <meta name="keywords" content="iOS,NSObject,结构体,ISA">
 <meta property="og:type" content="article">
 <meta property="og:title" content="iOS NSObject对象模型">
 <meta property="og:url" content="http://jackthenoob.github.io/2019/05/27/iOS-NSObject对象模型/index.html">
 <meta property="og:site_name" content="Lyddwn">
-<meta property="og:description" content="前言我们编写的Objective-C代码，底层通过C/C++代码实现。  Objective-C -&amp;gt; C/C++ -&amp;gt; 汇编语言 -&amp;gt; 机器语言  源码探究ISA我们通过以下命令，将.m文件转化为C/C++代码。 1clang -rewrite-objc **.m 可以获取 **.cpp文件。 在7700多行，可以获取如下结构体 123struct NSObject_IMPL">
+<meta property="og:description" content="前言我们编写的Objective-C代码，底层通过C/C++代码实现。  Objective-C -&amp;gt; C/C++ -&amp;gt; 汇编语言 -&amp;gt; 机器语言  那么一个Objective-C类、对象是如何通过C/C++实现、储存的呢？ 源码探究ISA我们通过以下命令，将.m文件转化为C/C++代码。 1clang -rewrite-objc **.m 可以获取 **.cpp文件。 在770">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://jackthenoob.github.io/2019/05/27/iOS-NSObject对象模型/a001.jpg">
 <meta property="og:image" content="http://jackthenoob.github.io/2019/05/27/iOS-NSObject对象模型/a002.jpg">
-<meta property="og:updated_time" content="2019-05-28T07:37:13.042Z">
+<meta property="og:updated_time" content="2019-05-28T07:56:54.302Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS NSObject对象模型">
-<meta name="twitter:description" content="前言我们编写的Objective-C代码，底层通过C/C++代码实现。  Objective-C -&amp;gt; C/C++ -&amp;gt; 汇编语言 -&amp;gt; 机器语言  源码探究ISA我们通过以下命令，将.m文件转化为C/C++代码。 1clang -rewrite-objc **.m 可以获取 **.cpp文件。 在7700多行，可以获取如下结构体 123struct NSObject_IMPL">
+<meta name="twitter:description" content="前言我们编写的Objective-C代码，底层通过C/C++代码实现。  Objective-C -&amp;gt; C/C++ -&amp;gt; 汇编语言 -&amp;gt; 机器语言  那么一个Objective-C类、对象是如何通过C/C++实现、储存的呢？ 源码探究ISA我们通过以下命令，将.m文件转化为C/C++代码。 1clang -rewrite-objc **.m 可以获取 **.cpp文件。 在770">
 <meta name="twitter:image" content="http://jackthenoob.github.io/2019/05/27/iOS-NSObject对象模型/a001.jpg">
 
 
@@ -359,6 +359,7 @@
 <blockquote>
 <p>Objective-C -&gt; C/C++ -&gt; 汇编语言 -&gt; 机器语言</p>
 </blockquote>
+<p>那么一个Objective-C类、对象是如何通过C/C++实现、储存的呢？</p>
 <h2 id="源码探究"><a href="#源码探究" class="headerlink" title="源码探究"></a>源码探究</h2><h3 id="ISA"><a href="#ISA" class="headerlink" title="ISA"></a>ISA</h3><p>我们通过以下命令，将.m文件转化为C/C++代码。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang -rewrite-objc **.m</span><br></pre></td></tr></table></figure>
 <p>可以获取 **.cpp文件。</p>
@@ -503,6 +504,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2019/05/28/ios-NSObject从创建到销毁/" rel="prev" title="ios NSObject从创建到销毁">
+                ios NSObject从创建到销毁 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -578,7 +583,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-count">13</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -600,7 +605,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">30</span>
+                  <span class="site-state-item-count">33</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

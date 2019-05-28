@@ -2,9 +2,23 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://jackthenoob.github.io/2019/05/28/iOS-Runtime/</loc>
+    
+    <lastmod>2019-05-28T13:10:16.321Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://jackthenoob.github.io/2019/05/28/ios-NSObject%E4%BB%8E%E5%88%9B%E5%BB%BA%E5%88%B0%E9%94%80%E6%AF%81/</loc>
+    
+    <lastmod>2019-05-28T13:09:52.300Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://jackthenoob.github.io/2019/05/27/iOS-NSObject%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B/</loc>
     
-    <lastmod>2019-05-28T07:37:13.042Z</lastmod>
+    <lastmod>2019-05-28T07:56:54.302Z</lastmod>
     
   </url>
   
