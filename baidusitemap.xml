@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://jackthenoob.github.io/2019/06/10/iPadOS%E6%96%B0%E5%8A%9F%E8%83%BD/</loc>
+    <lastmod>2019-06-10</lastmod>
+  </url>  <url>
+    <loc>http://jackthenoob.github.io/2019/05/21/Swift%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B8%80/</loc>
+    <lastmod>2019-06-03</lastmod>
+  </url>  <url>
     <loc>http://jackthenoob.github.io/2019/05/28/iOS-Runtime/</loc>
     <lastmod>2019-05-29</lastmod>
   </url>  <url>
@@ -26,9 +32,6 @@
     <lastmod>2019-05-23</lastmod>
   </url>  <url>
     <loc>http://jackthenoob.github.io/2019/05/22/%E4%BD%BF%E7%94%A8-%E8%AE%BF%E9%97%AE%E5%AE%9E%E4%BE%8B%E5%AF%B9%E8%B1%A1%E6%88%90%E5%91%98%E5%8F%98%E9%87%8FCrash%E9%97%AE%E9%A2%98/</loc>
-    <lastmod>2019-05-23</lastmod>
-  </url>  <url>
-    <loc>http://jackthenoob.github.io/2019/05/21/Swift%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B8%80/</loc>
     <lastmod>2019-05-23</lastmod>
   </url>  <url>
     <loc>http://jackthenoob.github.io/2019/05/21/Lighter-your-ViewController-%E6%89%93%E9%80%A0%E8%BD%BB%E9%87%8F%E5%8C%96ViewController/</loc>
